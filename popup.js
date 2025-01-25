@@ -1,3 +1,3 @@
-document.getElementById('clickMe').addEventListener('click', () => {
+document.getElementById('Search').addEventListener('click', () => {
     alert('Button clicked!');
   });
