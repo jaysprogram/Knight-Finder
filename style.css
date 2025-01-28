@@ -3,6 +3,50 @@
     /*Search button goes here, free for editing*/
 }
 
+#trash{
+
+    
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+
+    object-fit: contain;
+    position: relative;
+    top: 300px;
+
+    
+}
+
+#trash img{
+    height: 30px;
+    width: auto;
+}
+
+/* this is the class 'button' if you add this class to any button it will have 
+the same style as for example the trash button ie. no border */
+
+.button{
+    border: none;
+  cursor: pointer;
+  appearance: none;
+  background-color: inherit;
+  transition: transform 0.2s ease;
+}
+
+/* Here im adding a effect to the class button so when you hover over it */
+
+.button:hover {
+    transform: rotate(4deg) scale(1.06);
+   
+}
+
+/* This is the effect when clicking on a button*/
+
+.button:active{
+    transform: rotate(-4deg) scale(.97);
+   
+}
+
 h1{
     font-family:"Arial Black", Gadget, sans-serif;
     font-size: 25px;
