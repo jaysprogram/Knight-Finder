@@ -12,7 +12,9 @@
         }
     },
     
-    "permission": []
+    "permissions": [
+        "storage"
+    ]
 
 }
 
