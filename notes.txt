@@ -1,0 +1,10 @@
+<---------- Friday January 31st Log ---------->
+To Do:
+- Explained each part of the project we worked on so far.
+- Brainstormed Ideas for the Ai chat bot Location and style
+
+Goals for today:
+- Create and finish the Local Storage
+    -> Step 1: use "chrome.storage" Api in js | declare storage permisiion in manifest file
+    -> Step 2: Implement it methods like: chrome.storage.local.Set
+               chrome.storage.local.get
