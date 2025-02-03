@@ -5,7 +5,6 @@ function preventRefresh(e){
   if (e.preventDefault) e.preventDefault();
 }
 
-async function saveHistory(searchRequest) {
   /*
   return new Promise((resolve, reject) => {
 
@@ -35,17 +34,22 @@ async function saveHistory(searchRequest) {
 
   */
 
-    let pastSearches = {};
-    pastSearches.history1 = searchRequest;
+function saveHistory(searchRequest) {
+  let pastSearches = {};
+  pastSearches.history1 = searchRequest;
 
-    chrome.storage.sync.set({pastSearches});
+  chrome.storage.sync.set({pastSearches});
 }
 
 async function loadHistory() {
   const data = await chrome.storage.sync.get("pastSearches");
-  const pastSearches = {};
-  Object.assign(pastSearches, data.pastSearches);
-  history.innerHTML = (String)(pastSearches.history1);
+  if(data != undefined && data.pastSearches != undefined && "history1" in data.pastSearches) {
+    const pastSearches = {};
+    Object.assign(pastSearches, data.pastSearches);
+    history.innerHTML = pastSearches["history1"];
+  } else {
+    history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
+  }
 }
 
 function processSearchBox(e){
