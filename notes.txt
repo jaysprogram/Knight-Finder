@@ -8,3 +8,13 @@ Goals for today:
     -> Step 1: use "chrome.storage" Api in js | declare storage permisiion in manifest file
     -> Step 2: Implement it methods like: chrome.storage.local.Set
                chrome.storage.local.get
+
+
+<------ Monday February 3rd - Friday February 7th ------>
+Goals for Week:
+- Finish the history backend
+    - Backend, Storage, 
+- Research if history idea interaction is applicable, if not, start work on databases
+    - 
+
+- 
