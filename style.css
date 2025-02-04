@@ -10,12 +10,23 @@
     padding: 8px;
     box-shadow: 0px 4px 10px rgba(174, 173, 92, 0.3);
     position: absolute;
-    bottom: 10px;
-    left: 10px;
     width: 100%;
     max-width: 180px;
     
 }
+
+#searchBox{
+
+    width: 200px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    bottom: 15px;
+    left: 10px;
+
+}
+
 #searchBox input{
 
     z-index: 1;
@@ -28,36 +39,46 @@
     padding: 10px;
     font-family: "Montserrat", serif;
 }
+
+#searchButton {
+
+    height: 30px;
+    width: 30px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    object-fit: contain;
+    position: relative;
+    left: 210px;
+    bottom: 2.5px;
+}
+
 #searchButton img{
 
     height: 30px;
     width: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    object-fit: contain;
-    position: relative;
-    left: 213px;
-    top: 320px;
 }
+
 #trash img{
-    height: 30px;
-    width: 30px;
+
+    height: 35px;
+    width: 35px;
 }
 
 #trash{
+
     height: 30px;
     width: 30px;
+
     display: flex;
     justify-content: flex-end;
     align-items: flex-end;
 
     object-fit: contain;
-    position: relative;
-    left: 252px;
-    top: 250px;
-    
+    position: absolute;
+    left: 262px;
+    top: 365px;
 }
 
 /* this is the class 'button' if you add this class to any button it will have 
@@ -125,4 +146,24 @@ body {
     max-width: 100%;
     height: auto;
     width: auto;
+}
+
+#history{
+    /*history*/
+}
+
+.backgroundTextBox{
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 7px;
+    position: absolute;
+    top: 100px;
+
+    width: 300px;
+    height: 250px;
+    background: rgb(45, 47, 49);
+    
+
 }
