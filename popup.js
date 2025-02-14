@@ -27,9 +27,14 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   const settings = document.getElementById('settingsPage');
   const bookmarks = document.getElementById('bookmarksPage');
 
+  //Play the transition to fade in
+  document.body.classList.add('fade-in');
+
   // function show deactivate page and activate given one
   function showPage (page) {
-    pages.forEach(p => p.classList.remove('active'));
+    //Deactivate the different pages
+    pages.forEach(p => p.classList.replace('active','deactivate'));
+    //Activate the current page
     page.classList.add("active");
   }
   // Event listener 
@@ -39,13 +44,15 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   });
 
 
+  // uncomment this for  settings Btn
   //document.getElementById("settingsBtn").addEventListener('click', () => {
     //showPage(settings);
   //});
 
+  // bookmarkBtn
   //document.getElementById("bookmarkBtn").addEventListener('click', () => {
     //showPage(bookmarks);
-  //});
+  //}); This is a test of the ocmment
 
   // back buttons
   document.querySelectorAll(".backBtn").forEach(button => {

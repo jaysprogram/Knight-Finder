@@ -126,9 +126,14 @@ body {
     background-color: #FFC904;
     width: 300px;
     height: 400px;
-    
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 
 } 
+
+.fade-in {
+    opacity: 1;
+}
 
 #nameLogoContainer {
     
@@ -186,6 +191,11 @@ body {
 
 .active {
     transform: translateX(0);
-    display: block !important; /* Show only active page */
+    display: block !important;
+}
+
+.deactivate {
+    transform: translateX(100%);
+    display: block;
 }
 
