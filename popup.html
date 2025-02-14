@@ -12,7 +12,7 @@
 </head>
 <body>
 
-    <div id="mainPage">
+    <div id="mainPage" class="active page">
         <!-- Background Chat Area -->
         <div class="backgroundTextBox">
             <!-- HERE GOES THE CHATTING WITH GEMINI FOR LIVE FEEDBACK WITH USER -->
@@ -36,7 +36,7 @@
         </form>
 
         <!-- History Button -->
-        <button id="historyButton" class="btn btn-primary w-100">View History</button>
+        <button id="historyButton" class="btn btn-secondary btn small">View History</button>
 
         <!-- Trashcan -->
         <div id="trash">
@@ -47,10 +47,10 @@
     </div>
 
     <!-- History Page (Initially Hidden) -->
-    <div id="historyPage" class="pages" style="display: none;">
+    <div id="historyPage" class="page">
         <h2>History</h2>
-        <p id="history">Search history will appear here...</p>
-        <button id="backButton" class="btn btn-danger w-100">Back</button>
+        <p id="history">Search history: </p>
+        <button  class="backBtn btn btn-secondary btn-sm">Back</button>
     </div>
 
     <script src="popup.js"></script>

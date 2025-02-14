@@ -19,8 +19,8 @@
 
     width: 200px;
     height: 30px;
-    display: flex;
-    align-items: center;
+
+
     position: absolute;
     bottom: 15px;
     left: 10px;
@@ -29,7 +29,6 @@
 
 #searchBox input{
 
-    z-index: 1;
     flex: 1;
     border: none;
     outline: none;
@@ -127,6 +126,8 @@ body {
     background-color: #FFC904;
     width: 300px;
     height: 400px;
+    
+
 } 
 
 #nameLogoContainer {
@@ -168,6 +169,23 @@ body {
 
 }
 
-.pages {
-
+.page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #2c2c2c; /* Dark background */
+    color: white;
+    padding: 20px;
+    transform: translateX(100%); /* Initially off-screen */
+    transition: transform 0.3s ease-in-out;
+    display: block; /* Ensure it's visible but off-screen */
 }
+
+
+.active {
+    transform: translateX(0);
+    display: block !important; /* Show only active page */
+}
+

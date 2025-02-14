@@ -18,12 +18,14 @@ var numHistorySearches = 4;
 let history = document.getElementById("history");
 loadHistory();
 
-document.addEventListener('DOMContentLoaded', () => {
+
+// pages buttons, this is where we make it seem a new page appears
+document.addEventListener('DOMContentLoaded', () => { // will only run if everything is loaded
   const pages = document.querySelectorAll(".page"); // selects everything
-  const mainPage = document.getElementById("mainPageDiv");
-  const historyPage = document.getElementById('historyDiv');
-  const settings = document.getElementById('settingsDiv');
-  const bookmarks = document.getElementById('bookmarksDiv');
+  const mainPage = document.getElementById("mainPage");
+  const historyPage = document.getElementById('historyPage');
+  const settings = document.getElementById('settingsPage');
+  const bookmarks = document.getElementById('bookmarksPage');
 
   // function show deactivate page and activate given one
   function showPage (page) {
@@ -37,17 +39,18 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  document.getElementById("settings").addEventListener('click', () => {
-    showPage(settings);
-  });
+  //document.getElementById("settingsBtn").addEventListener('click', () => {
+    //showPage(settings);
+  //});
 
-  document.getElementById("settings").addEventListener('click', () => {
-    showPage(settings);
-  });
+  //document.getElementById("bookmarkBtn").addEventListener('click', () => {
+    //showPage(bookmarks);
+  //});
 
   // back buttons
   document.querySelectorAll(".backBtn").forEach(button => {
     button.addEventListener("click", () => {
+      console.log("test of the back button");
       showPage(mainPage);
     });
   });
