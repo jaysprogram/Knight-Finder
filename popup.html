@@ -1,46 +1,58 @@
 <!DOCTYPE html>
-<html>  
+<html lang="en">  
 <head>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Knight Search</title>
+    
+    <!-- Bootstrap & Custom Styles -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="style.css">
 
 </head>
-    <!-- Extension Body-->
-
 <body>
-    <div class="backgroundTextBox">
-    <!-- HERE GOES THE CHATTING WITH GEMINI FOR LIVE FEEDBACK WITH USER-->
+
+    <div id="mainPage">
+        <!-- Background Chat Area -->
+        <div class="backgroundTextBox">
+            <!-- HERE GOES THE CHATTING WITH GEMINI FOR LIVE FEEDBACK WITH USER -->
+        </div>
+
+        <!-- Logo Container -->
+        <div id="nameLogoContainer">
+            <img id="nameLogo" alt="UCF logo" src="Images/logo.png">
+        </div>
+
+        <!-- Search Box -->
+        <form id="searchBox">
+            <input type="text" placeholder="Search..." name="searchBar" id="searchBar">
+            
+            <!-- Search Button -->
+            <div id="searchButton">
+                <button class="button" type="submit">
+                    <img src="Images/searchIcon.png" alt="Search">
+                </button>
+            </div>
+        </form>
+
+        <!-- History Button -->
+        <button id="historyButton" class="btn btn-primary w-100">View History</button>
+
+        <!-- Trashcan -->
+        <div id="trash">
+            <button class="button">
+                <img src="Images/trashcan.png" alt="Trash">
+            </button>
+        </div>
     </div>
-    <!-- Logo Container-->
 
-    <div id ="nameLogoContainer">
-        <img id ="nameLogo"   alt ="UCF logo" src ="Images/logo.png">
+    <!-- History Page (Initially Hidden) -->
+    <div id="historyPage" class="pages" style="display: none;">
+        <h2>History</h2>
+        <p id="history">Search history will appear here...</p>
+        <button id="backButton" class="btn btn-danger w-100">Back</button>
     </div>
-    <!-- SearchBox Container-->
 
-    <form id = "searchBox">
-      <input type = "text" placeholder = "Search..." name = "searchBar" id = "searchBar">
-    <!-- Search Button Container-->  
-
-    <div id = "searchButton">
-      <button class = "button" type = "submit">
-        <img src = "Images/searchIcon.png">
-      </button>
-    </div>
-    </form>
-    <!-- History Container (Empty for now)-->
-
-    <p id = "history"> 
-    </p>
-    <!-- <button id="Search">Search</button> -->
-
-    <!--The trashcan-->
-    <div id = "trash">
-        <button class="button">
-            <img src = "Images/trashcan.png">
-        </button>
-    </div>
     <script src="popup.js"></script>
 
 </body>
