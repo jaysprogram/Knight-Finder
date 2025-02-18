@@ -17,4 +17,15 @@ Goals for Week:
 - Research if history idea interaction is applicable, if not, start work on databases
     - 
 
-- 
+<---------- February 7th Log ---------->
+TO DO:
+- 2 weeeks now have a rough
+    - not all features but a rough idea of what we are trying
+- Making History Update in real time
+- Geminin Api
+- Restructuring of the UI
+
+Goals for Today:
+- Research the Popular searches tab and how to implement it
+- begin restructuring of the UI
+
