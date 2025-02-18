@@ -12,16 +12,17 @@
 </head>
 <body>
 
-    <div id="mainPage" class="active page">
+    <div id="mainPage">
         <!-- Background Chat Area -->
         <div class="backgroundTextBox">
             <!-- HERE GOES THE CHATTING WITH GEMINI FOR LIVE FEEDBACK WITH USER -->
+                    <!-- Logo Container -->
+              <div id="nameLogoContainer">
+                <img id="nameLogo" alt="UCF logo" src="Images/logo.png">
+            </div>
         </div>
 
-        <!-- Logo Container -->
-        <div id="nameLogoContainer">
-            <img id="nameLogo" alt="UCF logo" src="Images/logo.png">
-        </div>
+
 
         <!-- Search Box -->
         <form id="searchBox">
@@ -33,18 +34,25 @@
                     <img src="Images/searchIcon.png" alt="Search">
                 </button>
             </div>
+
+          <!-- Trashcan -->
+        <div id="trash">
+          <button class="button">
+              <img src="Images/trashcan.png" alt="Trash">
+          </button>
+      </div>
+
         </form>
 
+        <div id = pageBtns>
         <!-- History Button -->
-        <button id="historyButton" class="btn btn-secondary btn small">View History</button>
-
-        <!-- Trashcan -->
-        <div id="trash">
-            <button class="button">
-                <img src="Images/trashcan.png" alt="Trash">
-            </button>
+        <button id="historyButton" class="btn btn-secondary btn-sm">View History</button>
+        <!-- Top Searches Button-->
+        <button id = "topSearchbtn" class = "btn btn-secondary btn-sm">Top Searches</button>
+        <!-- Boomark button-->
+        <button id = "bookmarkBtn" class = "btn btn-secondary btn-sm">Bookmarks</button>
         </div>
-    </div>
+
 
     <!-- History Page (Initially Hidden) -->
     <div id="historyPage" class="page">

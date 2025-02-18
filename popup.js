@@ -24,7 +24,6 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   const pages = document.querySelectorAll(".page"); // selects everything
   const mainPage = document.getElementById("mainPage");
   const historyPage = document.getElementById('historyPage');
-  const settings = document.getElementById('settingsPage');
   const bookmarks = document.getElementById('bookmarksPage');
 
   //Play the transition to fade in
@@ -32,10 +31,13 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
 
   // function show deactivate page and activate given one
   function showPage (page) {
-    //Deactivate the different pages
-    pages.forEach(p => p.classList.replace('active','deactivate'));
-    //Activate the current page
-    page.classList.add("active");
+    pages.forEach(p => {
+      if ( p !== mainPage) {
+        p.classList.remove('active');
+      }
+    });
+    mainPage.classList.remove('active');
+    page.classList.add('active');
   }
   // Event listener 
   // history
@@ -43,21 +45,11 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
     showPage(historyPage);
   });
 
-
-  // uncomment this for  settings Btn
-  //document.getElementById("settingsBtn").addEventListener('click', () => {
-    //showPage(settings);
-  //});
-
-  // bookmarkBtn
-  //document.getElementById("bookmarkBtn").addEventListener('click', () => {
-    //showPage(bookmarks);
-  //}); This is a test of the ocmment
+  
 
   // back buttons
   document.querySelectorAll(".backBtn").forEach(button => {
     button.addEventListener("click", () => {
-      console.log("test of the back button");
       showPage(mainPage);
     });
   });
