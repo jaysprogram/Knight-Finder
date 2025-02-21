@@ -10,6 +10,7 @@
     width: 100%;
     max-width: 280px;
     justify-content: center;
+    min-width: 0;
 }
 
 #searchBox{
@@ -33,6 +34,7 @@
     font-size: 16px;
     padding: 10px;
     font-family: "Montserrat", serif;
+
     
 }
 
@@ -67,9 +69,7 @@
     object-fit: contain;
     position: relative;
     left: 202px;
-    /*position: absolute;
-    left: 262px;
-    top: 365px;*/
+    
 }
 
 /* this is the class 'button' if you add this class to any button it will have 
@@ -116,6 +116,7 @@ body {
     padding: 0px;
     font-family: Arial;
     background-color: #FFC904;
+    
     width: 300px;
     height: 400px;
     opacity: 0;

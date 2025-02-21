@@ -26,29 +26,30 @@
 
         <!-- Search Box -->
         <form id="searchBox">
-            <input type="text" placeholder="Search..." name="searchBar" id="searchBar">
-            
-            <!-- Search Button -->
-            <div id="searchButton">
-                <button class="button" type="submit">
-                    <img src="Images/searchIcon.png" alt="Search">
-                </button>
-            </div>
+          <input type="text" placeholder="Search..." name="searchBar" id="searchBar">
+          
+          <!-- Search Button -->
+          <div id="searchButton">
+              <button class="button" type="submit">
+                  <img src="Images/searchIcon.png" alt="Search">
+              </button>
+          </div>
 
-          <!-- Trashcan -->
-        <div id="trash">
-          <button class="button">
-              <img src="Images/trashcan.png" alt="Trash">
-          </button>
-      </div>
+        <!-- Trashcan -->
+      <div id="trash">
+        <button class="button">
+            <img src="Images/trashcan.png" alt="Trash">
+        </button>
+    </div>
 
-        </form>
+      </form>
 
+        <!--All Navigation buttons-->
         <div id = pageBtns>
         <!-- History Button -->
-        <button id="historyButton" class="btn btn-secondary btn-sm">View History</button>
+        <button id="historyBtn" class="btn btn-secondary btn-sm">View History</button>
         <!-- Top Searches Button-->
-        <button id = "topSearchbtn" class = "btn btn-secondary btn-sm">Top Searches</button>
+        <button id = "topSearchBtn" class = "btn btn-secondary btn-sm">Top Searches</button>
         <!-- Boomark button-->
         <button id = "bookmarkBtn" class = "btn btn-secondary btn-sm">Bookmarks</button>
         </div>
@@ -60,6 +61,20 @@
         <p id="history">Search history: </p>
         <button  class="backBtn btn btn-secondary btn-sm">Back</button>
     </div>
+
+    <!-- Top Search page (Initially Hidden) -->
+    <div id="topSearchPage" class="page">
+      <h2>Popular Searches</h2>
+      <p></p>
+      <button class="backBtn btn btn-secondary btn-sm">Back</button>
+  </div>
+
+    <!-- History Page (Initially Hidden) -->
+    <div id="bookmarksPage" class="page">
+      <h2>Bookmarks</h2>
+      <p></p>
+      <button class="backBtn btn btn-secondary btn-sm">Back</button>
+  </div>
 
     <script src="popup.js"></script>
 

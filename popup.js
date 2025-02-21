@@ -1,4 +1,3 @@
-// Global variables
 
 // Creating a variable to take in the input of the user from the searchBox
 let searchBoxForm = document.getElementById("searchBox");
@@ -25,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   const mainPage = document.getElementById("mainPage");
   const historyPage = document.getElementById('historyPage');
   const bookmarks = document.getElementById('bookmarksPage');
+  const topSearch = document.getElementById('topSearchPage');
 
   //Play the transition to fade in
   document.body.classList.add('fade-in');
@@ -39,11 +39,22 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
     mainPage.classList.remove('active');
     page.classList.add('active');
   }
-  // Event listener 
+  // Event listeners 
   // history
-  document.getElementById('historyButton').addEventListener("click", () => {
+  document.getElementById('historyBtn').addEventListener("click", () => {
     showPage(historyPage);
   });
+
+
+  document.getElementById('topSearchBtn').addEventListener("click", () => {
+    showPage(topSearch);
+  });
+
+  document.getElementById('bookmarkBtn').addEventListener("click", () => {
+    showPage(bookmarks);
+  });
+  
+
 
   
 
@@ -160,6 +171,12 @@ function processSearchBox(e){
   let searchRequest = searchBoxElement.value;
   searchBoxElement.value = "";
 
+
+  // process search request
+
+  geminiRequest(searchRequest);
+
+
   //Save the history
   saveHistory(searchRequest);
 
@@ -167,12 +184,28 @@ function processSearchBox(e){
   preventRefresh(e);
 }
 
-// 
+//
 
 
 
 
 
-// Testing pages
+// CHATBOT
+
+
+
+
+async function geminiRequest(message) {
+  const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+  const genAI = new GoogleGenerativeAI("AIzaSyBYZa6iVFRLCafUQXi0LkOZseUybNC6Rxg");
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  const prompt = message;
+
+  const result = await model.generateContent(prompt);
+  console.log(result.response.text());
+
+}
 
 
