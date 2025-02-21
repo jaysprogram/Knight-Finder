@@ -162,7 +162,7 @@ body {
     top: 10px;
     width: 280px;
     height: 250px;
-    background: rgb(45, 47, 49);
+    background-color: #1E1E1E;
     
 
 }
@@ -181,12 +181,43 @@ body {
     display: block; /* Ensure it's visible but off-screen */
 }
 
+
+/* Tool Buttons*/
 #pageBtns {
     position: absolute;
-    bottom: 10px;
-    left: 10px;
+    bottom: 38px;
+    left: 10px;  
 }
 
+/*History Button*/
+#historyBtn{
+    border-radius: 15px;
+    background-color: #1E1E1E   ;
+}
+
+#historyBtn img{
+    filter: brightness(0.5) invert(0.5);
+}
+
+/*Top Search Button*/
+#topSearchBtn{
+    border-radius: 15px;
+    background-color: #1E1E1E   ;
+}
+
+#topSearchBtn img{
+    filter: brightness(0.5) invert(0.5);  
+}
+
+/*Bookmark Button*/
+#bookmarkBtn{
+    border-radius: 15px;
+    background-color: #1E1E1E   ;
+}
+
+#bookmarkBtn img{
+    filter: brightness(0.5) invert(0.5);
+}
 
 
 /* Only apply transition effect to non-main pages */
