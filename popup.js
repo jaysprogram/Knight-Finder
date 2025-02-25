@@ -54,10 +54,6 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
     showPage(bookmarks);
   });
   
-
-
-  
-
   // back buttons
   document.querySelectorAll(".backBtn").forEach(button => {
     button.addEventListener("click", () => {
@@ -65,10 +61,6 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
     });
   });
 });
-
-
-
-
 
 
 // Function to stop the page from refreshing after every button pressed
@@ -167,45 +159,46 @@ async function loadHistory() {
 */
 
 function processSearchBox(e){
+
+  // call preventRefresh
+  preventRefresh(e);
   // Saving a duplicate the user enters and reset original to empty
   let searchRequest = searchBoxElement.value;
   searchBoxElement.value = "";
 
 
+
   // process search request
+  const responseElement = document.getElementById("responseText");
 
-  geminiRequest(searchRequest);
+  if (!searchRequest) {
+      responseElement.innerText = "Please enter a question.";
+      return;
+  }
 
+  responseElement.innerText = "Loading...";
+
+  chrome.runtime.sendMessage({ action: "fetchGemini", prompt: searchRequest }, (response) => {
+      if (response?.result) {
+          responseElement.innerText = response.result;
+      } else {
+          responseElement.innerText = "Error fetching response.";
+      }
+  });
+  
 
   //Save the history
   saveHistory(searchRequest);
 
-  // call preventRefresh
-  preventRefresh(e);
+  
 }
 
-//
 
 
 
 
 
-// CHATBOT
 
 
-
-
-async function geminiRequest(message) {
-  const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-  const genAI = new GoogleGenerativeAI("AIzaSyBYZa6iVFRLCafUQXi0LkOZseUybNC6Rxg");
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
-  const prompt = message;
-
-  const result = await model.generateContent(prompt);
-  console.log(result.response.text());
-
-}
 
 

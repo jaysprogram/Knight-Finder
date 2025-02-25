@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Knight Search",
     "version": "1.0",
-    "description": "A simple chrome extension",
+    "description": "A simple Chrome extension",
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
@@ -11,11 +11,10 @@
             "128": "Images/icon128.png"
         }
     },
-    
-    "permissions": [
-        "storage"
-    ]
-
+    "permissions": ["storage"],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    },
+    "host_permissions": ["https://generativelanguage.googleapis.com/"]
 }
-
-
