@@ -34,6 +34,8 @@ Goals for Today:
 - Finishing up the Server
     -> Flask is complete
     -> Intstall a MySQL connection using python
-    -> 
-    ->
+    -> Need SQL Database to be set up (coded in SQL)
+    -> Python Script to connect to the SQl Database
 - Knight Hacks Check-in Tomorrow 2/28
+- To Do by Next Friday
+    --> Have research done for the databases and setting up a server, explain and be able to write code.
