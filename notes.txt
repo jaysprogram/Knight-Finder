@@ -29,3 +29,11 @@ Goals for Today:
 - Research the Popular searches tab and how to implement it
 - begin restructuring of the UI
 
+<---------- Thursday, February 27th Log ---------->
+Goals for Today:
+- Finishing up the Server
+    -> Flask is complete
+    -> Intstall a MySQL connection using python
+    -> 
+    ->
+- Knight Hacks Check-in Tomorrow 2/28
