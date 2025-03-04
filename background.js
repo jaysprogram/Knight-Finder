@@ -18,7 +18,7 @@ async function fetchGeminiResponse(prompt) {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({prompt})
+            body: JSON.stringify({prompt}) 
         });
         if(!response.ok){
           throw new Error(`HTTP error. Status: ${response.status}`);

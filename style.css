@@ -20,7 +20,7 @@
     height: 30px;
     position: absolute;
     left: 10px;
-    bottom: 100px;
+    bottom: 70px;
 
 }
 
@@ -37,7 +37,6 @@
 
     
 }
-
 
 #searchButton {
 
@@ -96,7 +95,7 @@ the same style as for example the trash button ie. no border */
 /* This is the effect when clicking on a button*/
 
 .button:active{
-    transform: rotate(-4deg) scale(.97);
+    transform: rotate(-17deg) scale(.40);
    
 }
 
@@ -162,23 +161,23 @@ body {
     left: 10px;
     top: 10px;
     width: 280px;
-    height: 250px;
+    height: 330px;
     background-color: #1E1E1E;
     
 
 }
 
-
-
 /* Container around the AI response text */
 #responseContainer {
     display: flex;
     flex-direction: column;
-    margin-left: 10px;
-    margin-top: 10px;
-    width: 250px; /* Adjust as desired */
-    /* If you want scroll in case of a longer response: */
-    max-height: 210px; 
+    position: relative;
+    left: 10px;
+    top: 25px;
+    margin-left: 2px;
+    margin-top: 2px;
+    width: 250px; 
+    max-height: 210px; /*scrolling */
     overflow-y: auto;
 }
 
@@ -197,7 +196,6 @@ body {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Slight shadow (optional) */
 }
 
-
 .page {
     position: absolute;
     top: 0;
@@ -215,8 +213,9 @@ body {
 
 /* Tool Buttons*/
 #pageBtns {
+    display: grid (3,1fr);
     position: absolute;
-    bottom: 38px;
+    bottom: 10px;
     left: 10px;  
 }
 
@@ -262,4 +261,13 @@ body {
     transform: none; /* Prevents shifting */
 }
 
+#linepos1{
+    position: absolute;
+    top: 290px;
+    z-index: 10;
+    width: 250px;
+    height: 1px;
+    background-color: #ffffff;
+    filter: brightness(0.5) invert(0.5);
 
+}

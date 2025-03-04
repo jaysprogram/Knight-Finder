@@ -15,6 +15,8 @@
     <div id="mainPage">
         <!-- Background Chat Area -->
         <div class="backgroundTextBox">
+          <!-- Lines for design purposes-->
+        <div id="linepos1"></div>
                     <!-- Logo Container -->
               <div id="nameLogoContainer">
                 <img id="nameLogo" alt="UCF logo" src="Images/logo.png">
@@ -28,8 +30,6 @@
             </div>
           </div>
         </div>
-
-
 
         <!-- Search Box -->
         <form id="searchBox">
@@ -70,9 +70,34 @@
 
     <!-- History Page (Initially Hidden) -->
     <div id="historyPage" class="page">
-        <h2>History</h2>
-        <p id="history">Search history: </p>
-        <button  class="backBtn btn btn-secondary btn-sm">Back</button>
+        <h2 id="historyHeader">
+            History
+            <span style="display: block; width: 100%; height: 1px; background-color: rgb(92, 92, 92); margin-top: 5px"></span>
+            </h2>
+            <style>
+                #historyHeader {
+                    text-align: center;
+                    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                    font-weight: bold;
+                    font-size: 2.5rem;
+                    background: linear-gradient(60deg, #f9e499, #FFC904, #6d5603, #FFC904);
+                    background-size: 400% 400%;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    animation: yellowHueShift 6s ease-in-out infinite;
+                }
+            
+                @keyframes yellowHueShift {
+                    0% { background-position: 0% 50%; }
+                    25% { background-position: 50% 50%; }
+                    50% { background-position: 100% 50%; }
+                    75% { background-position: 150% 50%; }
+                    100% { background-position: 200% 50%; }
+                }
+            </style>
+            <p id="history">Search history: </p>
+            <button  class="backBtn btn btn-secondary btn-sm">Back</button>
+        </div>
     </div>
 
     <!-- Top Search page (Initially Hidden) -->
