@@ -1,27 +1,28 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-#searchBar{
-    
-    background: #1E1E1E;
-    border-radius: 20px;
-    /*border: none;*/
-    padding: 8px;
-    position: absolute;
-    width: 100%;
+#searchBox {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
     max-width: 280px;
-    justify-content: center;
-    min-width: 0;
+    height: 40px;
+    position: absolute;
+    left: 13px;
+    bottom: 52px;
+    margin: 10px auto; /* Centers the search bar */
 }
 
-#searchBox{
-    display: flex;
-    align-items: flex-start;
-    width: 300px;
-    height: 30px;
-    position: absolute;
-    left: 10px;
-    bottom: 70px;
-
+#searchBar {
+    flex: 1; /* Takes up all available space */
+    width: 100%;
+    border-radius: 20px;
+    padding: 8px;
+    background: #1E1E1E;
+    color: white;
+    border: none;
+    font-size: 16px;
+    font-family: "Montserrat", serif;
 }
 
 #searchBox input{
@@ -39,15 +40,12 @@
 }
 
 #searchButton {
-
-    height: 30px;
-    width: 30px;
-    padding-top: 8px;
-    
-    object-fit: contain;
-    position: relative;
-    left: 195px;
-    
+    height: 35px;
+    width: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px; /* Space between input and button */
 }
 
 #searchButton img{
@@ -62,14 +60,13 @@
     width: 30px;
 }
 
-#trash{
-    padding-top: 5px;
-    height: 30px;
-    width: 30px;
-    object-fit: contain;
-    position: relative;
-    left: 202px;
-    
+#trash {
+    height: 35px;
+    width: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
 }
 
 /* this is the class 'button' if you add this class to any button it will have 
@@ -131,6 +128,9 @@ body {
 
 #nameLogoContainer {
     
+    position: absolute;
+    top: 10px;    /* Move to taste */
+    left: 10px;
     width: 180px;
     height: auto;
     padding: 0px;
@@ -152,6 +152,13 @@ body {
 
 
 .backgroundTextBox{
+    position: relative;   /* Allows child elements to be absolutely positioned 
+                             relative to this box */
+    width: 280px;
+    height: 330px;
+    background-color: #1E1E1E;
+    border-radius: 20px;
+
 
     display: flex;
     justify-content: center;
@@ -169,32 +176,40 @@ body {
 
 /* Container around the AI response text */
 #responseContainer {
+    position: absolute;
+    /* push to center of the parent box */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 250px;
+    max-height: 210px; /* for scrolling if needed */
+    overflow-y: auto;
+
     display: flex;
     flex-direction: column;
-    position: relative;
-    left: 10px;
-    top: 25px;
+    
     margin-left: 2px;
     margin-top: 2px;
-    width: 250px; 
-    max-height: 210px; /*scrolling */
-    overflow-y: auto;
+    
 }
 
 /* Actual response text styling */
 #responseText {
-    background-color: #2A2A2A; /* Slightly different gray than the background */
+    background-color: #2A2A2A; 
     color: #F1F1F1;
-    font-family: Arial, sans-serif;
+    font-family: "Montserrat", sans-serif;
     font-size: 14px;
-    line-height: 1.4;
-    border-radius: 8px;
-    padding: 10px;
+    line-height: 1.5;
+    padding: 16px;
+    margin: 10px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    text-align: left;
+    white-space: pre-wrap;
     word-wrap: break-word;
-    white-space: pre-wrap; /* Ensures line breaks from the AI come through */
-    border: 1px solid #333; /* Subtle border for definition (optional) */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); /* Slight shadow (optional) */
-}
+  }
 
 .page {
     position: absolute;
