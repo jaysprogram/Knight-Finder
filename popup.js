@@ -9,7 +9,7 @@ let searchBoxElement = document.getElementById("searchBar");
 searchBoxForm.addEventListener("submit",processSearchBox);
 
 // Starting Backend for History
-var numHistorySearches = 4;
+var numHistorySearches = 10;
 
 
 
@@ -56,6 +56,9 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   
   // back buttons
   document.querySelectorAll(".backBtn").forEach(button => {
+    // Add the 'history-item' class to the button
+    button.classList.add("history-item");
+  
     button.addEventListener("click", () => {
       showPage(mainPage);
     });
@@ -135,15 +138,27 @@ async function loadHistory() {
   }
 
   // For loop populating array
-  for(let i = numHistorySearches - 1; i >= 0; i--){
-    // Checks to make sure object pastSearches has the property we are looking for
-    if(Object.hasOwn(data.pastSearches, "history" + (i).toString())){
-      historyQueue[i] = data.pastSearches["history" + (i).toString()];
+  // We'll build up a list as a string
+  let htmlStr = "<ol>";
 
-      //This will be removed later
-      history.innerHTML += "\n" + (i).toString() + ":- " + historyQueue[i];
-    } 
+  for (let i = 0; i < numHistorySearches; i++) {
+    const key = `history${i}`;
+  
+    if (Object.hasOwn(data.pastSearches, key)) {
+      let searchText = data.pastSearches[key];
+      // Truncate to 12 characters, then add "..."
+      const truncatedText = (searchText.length > 28)
+        ? searchText.slice(0, 28) + "..."
+        : searchText;
+  
+      historyQueue[i] = searchText;
+  
+      htmlStr += `<li> <button class="history-item">${truncatedText}</button> </li>`;
+    }
   }
+  
+  htmlStr += "</ol>";
+  history.innerHTML = htmlStr;
 }
  /*
   // Fetch data from Chrome
