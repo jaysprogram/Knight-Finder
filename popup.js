@@ -84,7 +84,7 @@ async function saveHistory(searchRequest) {
   // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
-    history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
+    if(history != null) history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
   } 
   else {
       // For loop populating array
@@ -134,31 +134,30 @@ async function loadHistory() {
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
     history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
-    return;
-  }
+  } else {
+    // For loop populating array
+    // We'll build up a list as a string
+    let htmlStr = "<ol>";
 
-  // For loop populating array
-  // We'll build up a list as a string
-  let htmlStr = "<ol>";
-
-  for (let i = 0; i < numHistorySearches; i++) {
-    const key = `history${i}`;
-  
-    if (Object.hasOwn(data.pastSearches, key)) {
-      let searchText = data.pastSearches[key];
-      // Truncate to 12 characters, then add "..."
-      const truncatedText = (searchText.length > 28)
-        ? searchText.slice(0, 28) + "..."
-        : searchText;
-  
-      historyQueue[i] = searchText;
-  
-      htmlStr += `<li> <button class="history-item">${truncatedText}</button> </li>`;
+    for (let i = 0; i < numHistorySearches; i++) {
+      const key = `history${i}`;
+    
+      if (Object.hasOwn(data.pastSearches, key)) {
+        let searchText = data.pastSearches[key];
+        // Truncate to 12 characters, then add "..."
+        const truncatedText = (searchText.length > 28)
+          ? searchText.slice(0, 28) + "..."
+          : searchText;
+    
+        historyQueue[i] = searchText;
+    
+        htmlStr += `<li> <button class="history-item">${truncatedText}</button> </li>`;
+      }
     }
-  }
-  
-  htmlStr += "</ol>";
-  history.innerHTML = htmlStr;
+    
+    htmlStr += "</ol>";
+    history.innerHTML = htmlStr;
+    }
 }
  /*
   // Fetch data from Chrome
@@ -172,6 +171,8 @@ async function loadHistory() {
   }
 }
 */
+
+let arrayOfStepStrings = [];
 
 function processSearchBox(e){
 
@@ -191,16 +192,123 @@ function processSearchBox(e){
       return;
   }
 
-  responseElement.innerText = "Loading...";
+  // Knight loading phrases
+  const knightPhrases = [
+    "Consulting the sacred scrolls...",
+    "Sharpening my quill of wisdom...",
+    "Summoning knowledge from the royal archives...",
+    "Preparing thy scholarly quest map...",
+    "In council with the academic sages..."
+  ];
+const randomPhrase = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
+responseElement.innerText = randomPhrase;
 
   chrome.runtime.sendMessage({ action: "fetchGemini", prompt: searchRequest }, (response) => {
       if (response?.result) {
           responseElement.innerText = response.result;
+
+          //Highlight the stuff the ai told us to.
+          //Pull the list of instructions
+          //set arrayOfStepStrings here
+          
+
+          //Highlight them
+          // popup.js
+          arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, ''))
+          let newValue = arrayOfStepStrings; // The new value you want to set
+          chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+              chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {
+                  if (response.status === "success") {
+                      console.log("Variable modified successfully");
+                  }
+              });
+          });
+
+          /*
+          for(let i = 0; i < arrayOfStepStrings.length; i++) {
+            const keyword = arrayOfStepStrings[i];
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              chrome.scripting.executeScript({
+                target: { tabId: tabs[0].id },
+                function: highlightText,
+                args: [keyword],
+              });
+            });
+        }
+        */
       } else {
           responseElement.innerText = "Error fetching response.";
       }
   });
   
+  // Prompt engineering for the AI 
+document.getElementById('aiAskBtn')?.addEventListener('click', async () => {
+  const userInput = document.getElementById('aiUserInput').value;
+  const responseEl = document.getElementById('aiResponse');
+
+  const systemPrompt = `YOU ARE: Sir Guidewell, a chivalrous knight of the University of Central Florida's academic realm
+
+ALL QUERIES SHOULD AUTOMATICALLY BE ASSUMED THAT THEY ARE TALKING ABOUT THE UCF MYUCF STUDENT PORTAL**
+
+ABSOLUTE COMMANDMENTS OF COMMUNICATION:
+- ALWAYS speak as a medieval knight
+- Transform EVERY response into a QUEST narrative
+- Use archaic language and knightly metaphors
+- Structure response in EXACTLY this format:
+  [Heroic Greeting]
+  
+  Thy Quest for Knowledge: [Brief Context]
+  
+  The Sacred Scrolls of Wisdom reveal:
+  Step One: [First Action]
+  Step Two: [Second Action]
+  Step Three: [Third Action]
+  Step (final): [Concluding Action]
+  
+  🛡️ Knightly Counsel:
+  • [Wisdom Bullet 1]
+  • [Wisdom Bullet 2]
+  
+  REMEMBER: Speak as if addressing squires in the royal academic castle!
+
+FORBIDDEN:
+- Modern tech language
+- Dry, bureaucratic explanations
+- Responses lacking medieval flair`;
+
+  // Knight loading phrases
+  const knightPhrases = [
+    "Consulting the sacred scrolls...",
+    "Sharpening my quill of wisdom...",
+    "Summoning knowledge from the royal archives...",
+    "Preparing thy scholarly quest map...",
+    "In council with the academic sages..."
+  ];
+  const randomPhrase = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
+  responseEl.textContent = randomPhrase;
+
+  try {
+    const response = await fetch("/api/gemini", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        prompt: userInput,
+        system: systemPrompt
+      })
+    });
+
+    const data = await response.json();
+    
+    // Use the response from the server
+    responseEl.textContent = data.answer || "A mysterious silence befell our quest.";
+
+  } catch (err) {
+    console.error("⚠️ Fetch error:", err);
+    responseEl.textContent = "A dark curse hath interfered with our noble quest!";
+  }
+});
 
   //Save the history
   saveHistory(searchRequest);
@@ -209,10 +317,105 @@ function processSearchBox(e){
 }
 
 
+document.getElementById("highlightBtn").addEventListener("click", () => {
+  //We will do some string parsing
+  const text = document.getElementById("keyword").value;
+  const elements = text.match(/"([^"]+)"/g).map(element => element.replace(/"/g, ''));
+  arrayOfStepStrings = elements;
+
+
+  
+  //Set the value in the content js
+  let newValue = arrayOfStepStrings; // The new value you want to set
+  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+      chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {
+          if (response.status === "success") {
+              console.log("Variable modified successfully");
+          }
+      });
+  });
+  /*
+  chrome.runtime.sendMessage(
+    {action: "updateVariable", newValue: newValue},
+    (response) => {
+      if (response.status === "success") {
+        console.log("Variable updated to:", response.updatedValue);
+      } else {
+        console.log("Failed to update variable.");
+      }
+    }
+  );
+  */
+  /*
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.scripting.executeScript({
+      target: { tabId: tabs[0].id },
+      function: highlightText,
+      args: [keyword],
+    });
+  });
+  */
+});
+
+function highlightText(keyword) {
+    //Highlight the target text
+    console.log("Its allive");
+    var xpath = "//a[text()='" + keyword + "']";
+    var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+  
+    //console.log(matchingElement);
+    
+  
+  
+    //Highlight the element
+    if(matchingElement != null) {
+      matchingElement.style = "background-color: yellow;";
+      /*
+      let newParent = document.createElement('span');
+      newParent.id = "Knight-Finder-Highlighted";
+      newParent.style = "background-color: yellow;";
+  
+      let oldParent = matchingElement.parentNode;
+      oldParent.insertBefore(newParent, matchingElement);
+  
+      newParent.appendChild(matchingElement);
+    } else {
+      console.log("Well crap..."); */
+    }
+  }
+
+/*
+      for(let i = 0; i < arrayOfStepStrings.length; i++) {
+        const keyword = arrayOfStepStrings[i];
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          chrome.scripting.executeScript({
+            target: { tabId: tabs[0].id },
+            function: highlightText,
+            args: [keyword],
+          });
+        });
+    }
+*/
 
 
 
 
+/*
+// Initialize the observer and run the highlighter initially
+document.addEventListener('DOMContentLoaded', function() {
+  for(let i = 0; i < arrayOfStepStrings.length; i++) {
+    const keyword = arrayOfStepStrings[i];
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      chrome.scripting.executeScript({
+        target: { tabId: tabs[0].id },
+        function: highlightText,
+        args: [keyword],
+      });
+    });
+}
+  observeDOMChanges(textToHighlight);
+});
+*/
 
 
 

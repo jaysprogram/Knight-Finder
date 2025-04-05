@@ -11,10 +11,18 @@
             "128": "Images/icon128.png"
         }
     },
-    "permissions": ["storage"],
+    "permissions": ["activeTab", "scripting", "storage"],
     "background": {
         "service_worker": "background.js",
         "type": "module"
     },
+    "content_scripts": [
+        {
+          "matches": [
+            "https://my.ucf.edu/*"
+          ],
+          "js": ["content.js"]
+        }
+      ],
     "host_permissions": ["https://generativelanguage.googleapis.com/"]
 }
