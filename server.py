@@ -18,7 +18,7 @@ import json  # Make sure this is imported
 
 #database
 import mysql.connector #load sql library
-
+"""
 # open connection to mysql database
 db = mysql.connector.connect(
 host="localhost",
@@ -28,6 +28,7 @@ host="localhost",
         )
 
 cursor = db.cursor() # create a cursor to talk to the database
+"""
 
 # set up flask route
 @app.route('/searches', methods=['POST'])

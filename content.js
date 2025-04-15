@@ -1,90 +1,64 @@
-let arrayOfStepStrings = [];
+function getArrayFromSessionStorage() {
+  const arrayString = sessionStorage.getItem('knightFinderSessionStorage');
+  return arrayString ? JSON.parse(arrayString) : [];
+}
+
+let arrayOfStepStrings = getArrayFromSessionStorage();
 
 // content.js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "modifyVariable") {
-      // Modify your variable here
-      arrayOfStepStrings = request.newValue;
-      console.log("Variable modified to:", arrayOfStepStrings);
-      sendResponse({status: "success"});
+    // Modify your variable here
+    arrayOfStepStrings = request.newValue;
+    console.log("Variable modified to:", arrayOfStepStrings);
+    sessionStorage.setItem('knightFinderSessionStorage', JSON.stringify(arrayOfStepStrings));
+    sendResponse({status: "success"});
   }
 });
 
 
 
 function highlightText(keyword) {
-    //Highlight the target text
-    keyword.replace(/[.,]/g, '');
-    keyword.replace(/s$/, '');
+  //Highlight the target text
+  keyword.replace(/[.,]/g, '');
+  keyword.replace(/s$/, '');
 
-    //words = keyword.split(' ');
-
-    /*
-    for(let i = 0; i < words.length; i++) {
-      var xpath = "//a[contains(text(), '" + words[i] + "')]";
-      var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-
-      if(matchingElement != null) break;
-    }*/
-
-    var xpath = "//a[contains(text(), '" + keyword + "')]";
-    var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+  var xpath = "//a[contains(text(), '" + keyword + "')]";
+  var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
   
-    //console.log(matchingElement);
-    
+  //console.log(matchingElement);
   
-  
-    //Highlight the element
-    if(matchingElement != null) {
-      matchingElement.style = "background-color: yellow;";
-      /*
-      let newParent = document.createElement('span');
-      newParent.id = "Knight-Finder-Highlighted";
-      newParent.style = "background-color: yellow;";
-  
-      let oldParent = matchingElement.parentNode;
-      oldParent.insertBefore(newParent, matchingElement);
-  
-      newParent.appendChild(matchingElement);
-    } else {
-      console.log("Well crap..."); */
-    }
-      
+  //Highlight the element
+  if(matchingElement != null) {
+    matchingElement.style = "background-color: yellow;";
+  }
 }
 
-
-setInterval(thing, 200);
-
-  function thing() {
-    //Remove highlighting
-    const xpathH = "//*[@style[contains(., 'background-color: yellow;')]]";
-    const result = document.evaluate(xpathH, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+function recurringHighlight() {
+  //Remove highlighting
+  const xpathH = "//*[@style[contains(., 'background-color: yellow;')]]";
+  const result = document.evaluate(xpathH, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     
-    //Highlight the target text
-    for (let i = 0; i < result.snapshotLength; i++) {
-        result.snapshotItem(i).style = ""; 
-    }
-    for(let i = 0; i < arrayOfStepStrings.length; i++) {
-      const keyword = arrayOfStepStrings[i];
-      highlightText(keyword);
-    }
-
+  //Highlight the target text
+  for (let i = 0; i < result.snapshotLength; i++) {
+    result.snapshotItem(i).style = ""; 
   }
+  for(let i = 0; i < arrayOfStepStrings.length; i++) {
+    const keyword = arrayOfStepStrings[i];
+    highlightText(keyword);
+  }
+}
+  
 
-/*
-  document.addEventListener('click', function() {
-    console.log("Say what");
-    setTimeout(function() {
-      for(let i = 0; i < arrayOfStepStrings.length; i++) {
-        const keyword = arrayOfStepStrings[i];
-        highlightText(keyword);
-    }
-    }, 800);
+//Set Up the content array, then set the highlighting to be called on an interval
+//Set up the array by loading in session content
+//This will ensure if they are already searching, that it will stay loaded
+//if(arrayOfStepStrings == []) arrayOfStepStrings = getArrayFromSessionStorage();
 
-}, true);
-
-*/
-
+console.log(arrayOfStepStrings);
+//Set up the highlighting to be called on an interval
+setInterval(recurringHighlight, 200);
+  
 
 console.log("Content loaded!");
 

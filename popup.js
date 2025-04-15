@@ -171,8 +171,8 @@ fetch("http://localhost:3000/searches", {
     "Preparing thy scholarly quest map...",
     "In council with the academic sages..."
   ];
-const randomPhrase = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
-responseElement.innerText = randomPhrase;
+  const randomPhrase = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
+  responseElement.innerText = randomPhrase;
 
   chrome.runtime.sendMessage({ action: "fetchGemini", prompt: searchRequest }, (response) => {
       if (response?.result) {
@@ -185,7 +185,7 @@ responseElement.innerText = randomPhrase;
 
           //Highlight them
           // popup.js
-          arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, ''))
+          arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, ''));
           let newValue = arrayOfStepStrings; // The new value you want to set
           chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
               chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {
@@ -194,19 +194,6 @@ responseElement.innerText = randomPhrase;
                   }
               });
           });
-
-          /*
-          for(let i = 0; i < arrayOfStepStrings.length; i++) {
-            const keyword = arrayOfStepStrings[i];
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              chrome.scripting.executeScript({
-                target: { tabId: tabs[0].id },
-                function: highlightText,
-                args: [keyword],
-              });
-            });
-        }
-        */
       } else {
           responseElement.innerText = "Error fetching response.";
       }
@@ -325,39 +312,16 @@ document.getElementById("highlightBtn").addEventListener("click", () => {
   const text = document.getElementById("keyword").value;
   const elements = text.match(/"([^"]+)"/g).map(element => element.replace(/"/g, ''));
   arrayOfStepStrings = elements;
-
-
   
   //Set the value in the content js
   let newValue = arrayOfStepStrings; // The new value you want to set
   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-      chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {
-          if (response.status === "success") {
-              console.log("Variable modified successfully");
-          }
+    chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {
+        if (response.status === "success") {
+            console.log("Variable modified successfully");
+        }
       });
   });
-  /*
-  chrome.runtime.sendMessage(
-    {action: "updateVariable", newValue: newValue},
-    (response) => {
-      if (response.status === "success") {
-        console.log("Variable updated to:", response.updatedValue);
-      } else {
-        console.log("Failed to update variable.");
-      }
-    }
-  );
-  */
-  /*
-  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-    chrome.scripting.executeScript({
-      target: { tabId: tabs[0].id },
-      function: highlightText,
-      args: [keyword],
-    });
-  });
-  */
 });
 
 function highlightText(keyword) {
@@ -367,23 +331,10 @@ function highlightText(keyword) {
     var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
   
     //console.log(matchingElement);
-    
-  
   
     //Highlight the element
     if(matchingElement != null) {
       matchingElement.style = "background-color: yellow;";
-      /*
-      let newParent = document.createElement('span');
-      newParent.id = "Knight-Finder-Highlighted";
-      newParent.style = "background-color: yellow;";
-  
-      let oldParent = matchingElement.parentNode;
-      oldParent.insertBefore(newParent, matchingElement);
-  
-      newParent.appendChild(matchingElement);
-    } else {
-      console.log("Well crap..."); */
     }
   }
 
