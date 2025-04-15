@@ -174,146 +174,70 @@ async function loadHistory() {
 
 let arrayOfStepStrings = [];
 
-function processSearchBox(e){
+// snippet from pop.js
 
-  // call preventRefresh
-  preventRefresh(e);
-  // Saving a duplicate the user enters and reset original to empty
-  let searchRequest = searchBoxElement.value;
-  searchBoxElement.value = "";
+// A global array: each element is { role: "user"|"assistant", content: string }
+let convohistory = [];
 
-
-
-  // process search request
+/**
+ * Called when user submits the search prompt.
+ */
+function processSearchBox(e) {
+  // prevent form refresh
+  if (e.preventDefault) e.preventDefault();
+  
+  // Grab user text
+  const searchRequest = document.getElementById("searchBar").value.trim();
+  document.getElementById("searchBar").value = "";
   const responseElement = document.getElementById("responseText");
 
   if (!searchRequest) {
-      responseElement.innerText = "Please enter a question.";
-      return;
+    responseElement.innerText = "Please enter a question.";
+    return;
   }
 
-  // Knight loading phrases
-  const knightPhrases = [
-    "Consulting the sacred scrolls...",
-    "Sharpening my quill of wisdom...",
-    "Summoning knowledge from the royal archives...",
-    "Preparing thy scholarly quest map...",
-    "In council with the academic sages..."
-  ];
-const randomPhrase = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
-responseElement.innerText = randomPhrase;
-
-  chrome.runtime.sendMessage({ action: "fetchGemini", prompt: searchRequest }, (response) => {
-      if (response?.result) {
-          responseElement.innerText = response.result;
-
-          //Highlight the stuff the ai told us to.
-          //Pull the list of instructions
-          //set arrayOfStepStrings here
-          
-
-          //Highlight them
-          // popup.js
-          arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, ''))
-          let newValue = arrayOfStepStrings; // The new value you want to set
-          chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-              chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {
-                  if (response.status === "success") {
-                      console.log("Variable modified successfully");
-                  }
-              });
-          });
-
-          /*
-          for(let i = 0; i < arrayOfStepStrings.length; i++) {
-            const keyword = arrayOfStepStrings[i];
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              chrome.scripting.executeScript({
-                target: { tabId: tabs[0].id },
-                function: highlightText,
-                args: [keyword],
-              });
-            });
-        }
-        */
-      } else {
-          responseElement.innerText = "Error fetching response.";
-      }
+  // 1. Insert user’s new question into convohistory
+  convohistory.push({
+    role: "user",
+    content: searchRequest
   });
-  
-  // Prompt engineering for the AI 
-document.getElementById('aiAskBtn')?.addEventListener('click', async () => {
-  const userInput = document.getElementById('aiUserInput').value;
-  const responseEl = document.getElementById('aiResponse');
 
-  const systemPrompt = `YOU ARE: Sir Guidewell, a chivalrous knight of the University of Central Florida's academic realm
-
-ALL QUERIES SHOULD AUTOMATICALLY BE ASSUMED THAT THEY ARE TALKING ABOUT THE UCF MYUCF STUDENT PORTAL**
-
-ABSOLUTE COMMANDMENTS OF COMMUNICATION:
-- ALWAYS speak as a medieval knight
-- Transform EVERY response into a QUEST narrative
-- Use archaic language and knightly metaphors
-- Structure response in EXACTLY this format:
-  [Heroic Greeting]
-  
-  Thy Quest for Knowledge: [Brief Context]
-  
-  The Sacred Scrolls of Wisdom reveal:
-  Step One: [First Action]
-  Step Two: [Second Action]
-  Step Three: [Third Action]
-  Step (final): [Concluding Action]
-  
-  🛡️ Knightly Counsel:
-  • [Wisdom Bullet 1]
-  • [Wisdom Bullet 2]
-  
-  REMEMBER: Speak as if addressing squires in the royal academic castle!
-
-FORBIDDEN:
-- Modern tech language
-- Dry, bureaucratic explanations
-- Responses lacking medieval flair`;
-
-  // Knight loading phrases
+  // Loading text
   const knightPhrases = [
     "Consulting the sacred scrolls...",
     "Sharpening my quill of wisdom...",
-    "Summoning knowledge from the royal archives...",
-    "Preparing thy scholarly quest map...",
-    "In council with the academic sages..."
+    "Summoning knowledge from the royal archives..."
   ];
-  const randomPhrase = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
-  responseEl.textContent = randomPhrase;
+  responseElement.innerText = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
 
-  try {
-    const response = await fetch("/api/gemini", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: userInput,
-        system: systemPrompt
-      })
-    });
+  // 2. Send prompt + entire conversation to background script
+  chrome.runtime.sendMessage(
+    {
+      action: "fetchGemini",
+      prompt: searchRequest,
+      history: convohistory,
+    },
+    (response) => {
+      // 3. On success, response.result is Gemini's latest answer
+      if (response?.result) {
+        responseElement.innerText = response.result;
 
-    const data = await response.json();
-    
-    // Use the response from the server
-    responseEl.textContent = data.answer || "A mysterious silence befell our quest.";
+        // 4. Store assistant’s answer back into convohistory
+        convohistory.push({
+          role: "assistant",
+          content: response.result
+        });
 
-  } catch (err) {
-    console.error("⚠️ Fetch error:", err);
-    responseEl.textContent = "A dark curse hath interfered with our noble quest!";
-  }
-});
+        // (Optional) do your highlight logic here...
+        
+      } else {
+        responseElement.innerText = "Error fetching response.";
+      }
+    }
+  );
 
-  //Save the history
+  // Optionally store user text in local search history too
   saveHistory(searchRequest);
-
-  
 }
 
 
