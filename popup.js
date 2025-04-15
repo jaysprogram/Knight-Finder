@@ -111,22 +111,6 @@ async function loadHistory() {
     // We'll build up a list as a string
     let htmlStr = "<ol>";
 
-<<<<<<< HEAD
-  let htmlStr = "<ol>";
-  for (let i = 0; i < numHistorySearches; i++) {
-    const key = `history${i}`;
-    if (Object.hasOwn(data.pastSearches, key)) {
-      let searchText = data.pastSearches[key];
-      const truncatedText = (searchText.length > 28)
-        ? searchText.slice(0, 28) + "..."
-        : searchText;
-      historyQueue[i] = searchText;
-      htmlStr += `<li> <button class="history-item">${truncatedText}</button> </li>`;
-    }
-  }
-  htmlStr += "</ol>";
-  history.innerHTML = htmlStr;
-=======
     for (let i = 0; i < numHistorySearches; i++) {
       const key = `history${i}`;
     
@@ -146,7 +130,6 @@ async function loadHistory() {
     htmlStr += "</ol>";
     history.innerHTML = htmlStr;
     }
->>>>>>> origin/databaseServer
 }
 
 let arrayOfStepStrings = [];
@@ -155,12 +138,6 @@ function processSearchBox(e){
   preventRefresh(e);
   let searchRequest = searchBoxElement.value;
   searchBoxElement.value = "";
-<<<<<<< HEAD
-=======
-
-
-
-
 
 // SEND THE INFORMATION FROM THE SEARCHBOX TO THE DATABASE
 fetch("http://localhost:3000/searches", {
@@ -178,20 +155,13 @@ fetch("http://localhost:3000/searches", {
   console.error("❌ Error saving to DB:", err);
 });
 
-
-
-
-
   // process search request
->>>>>>> origin/databaseServer
   const responseElement = document.getElementById("responseText");
   if (!searchRequest) {
       responseElement.innerText = "Please enter a question.";
       return;
   }
-<<<<<<< HEAD
   responseElement.innerText = "Loading...";
-=======
 
   // Knight loading phrases
   const knightPhrases = [
@@ -204,7 +174,6 @@ fetch("http://localhost:3000/searches", {
 const randomPhrase = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
 responseElement.innerText = randomPhrase;
 
->>>>>>> origin/databaseServer
   chrome.runtime.sendMessage({ action: "fetchGemini", prompt: searchRequest }, (response) => {
       if (response?.result) {
           responseElement.innerText = response.result;
@@ -242,8 +211,6 @@ responseElement.innerText = randomPhrase;
           responseElement.innerText = "Error fetching response.";
       }
   });
-<<<<<<< HEAD
-=======
   
   // Prompt engineering for the AI 
 document.getElementById('aiAskBtn')?.addEventListener('click', async () => {
@@ -315,7 +282,6 @@ FORBIDDEN:
 });
 
   //Save the history
->>>>>>> origin/databaseServer
   saveHistory(searchRequest);
 }
 
@@ -342,7 +308,6 @@ document.getElementById('aiAskBtn')?.addEventListener('click', async () => {
   responseEl.textContent = randomPhrase;
   
 
-<<<<<<< HEAD
   const systemPrompt = `
   You are a helpful digital tour guide for UCF's student portal 
   interface. When the user asks where to find something on the system. 
@@ -355,7 +320,6 @@ document.getElementById('aiAskBtn')?.addEventListener('click', async () => {
   Continue for however many steps it takes to get to specific user input
   Step (final): Pathway to (user input) successfuly traversed (in bullet points under this explain what is on this page in 1-2 sentences to help the user understand what theyre looking at)
   "
-=======
 document.getElementById("highlightBtn").addEventListener("click", () => {
   //We will do some string parsing
   const text = document.getElementById("keyword").value;
@@ -435,7 +399,6 @@ function highlightText(keyword) {
         });
     }
 */
->>>>>>> origin/databaseServer
 
   Use verbs like 'navigate,' 'click,' 'select,' or 'go to' interchangeably as well as once in awhile using synonyms to these words that are more knight like. 
   Be warm, clear, concise,  and easy to understand.`;
@@ -459,13 +422,11 @@ function highlightText(keyword) {
     const aiText = data.candidates[0].content.parts[0].text.trim();
     responseEl.textContent = aiText;
 
-<<<<<<< HEAD
   } catch (err) {
     console.error(err);
     responseEl.textContent = "Something went wrong!";
   }
 });
-=======
 /*
 // Initialize the observer and run the highlighter initially
 document.addEventListener('DOMContentLoaded', function() {
@@ -486,4 +447,3 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
->>>>>>> origin/databaseServer
