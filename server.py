@@ -12,6 +12,42 @@ GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1/models/gemini-1.
 
 import json  # Make sure this is imported
 
+#database
+import mysql.connector #load sql library
+
+# open connection to mysql database
+db = mysql.connector.connect(
+host="localhost",
+    user="root",
+    password="Turkey37!",
+    database="knight_finder_database"
+        )
+
+cursor = db.cursor() # create a cursor to talk to the database
+
+# set up flask route
+@app.route('/searches', methods=['POST'])
+def save_search_term():
+    try:
+        data = request.get_json()
+        search_term = data.get('search_term')
+
+        if not search_term:
+            return jsonify({ "❌ error": "No search_term provided" }), 400
+
+        query = "INSERT INTO searches (search_term) VALUES (%s)"
+        cursor.execute(query, (search_term,))
+        db.commit()
+
+        return jsonify({ "success": True, "insertedId": cursor.lastrowid }), 200
+
+    except Exception as e:
+        print("❌ Error saving search term:", e)
+        return jsonify({ "error": "Database error", "details": str(e) }), 500
+
+
+
+
 
 @app.route('/api/gemini', methods=['POST'])
 def call_gemini():
@@ -129,3 +165,31 @@ THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED T
 
 if __name__ == "__main__":
     app.run(port=3000, debug=True)
+
+#Database begins
+#import mysql.connector
+
+#Connect to the mySQL database
+#database = mysql.connector.connect(
+    #host="localhost",
+    #user="root",
+    #password="Turkey37!",
+    #database="knight_finder_database"
+        #)
+
+#cursor = database.cursor()
+#@app.route('/api/save-data', methods=['POST'])
+#def save_user_data():
+  #  try:
+   #     data = request.get_json()
+    #   search = data.get('searchBox')
+
+     #   query = "INSERT INTO users (search) VALUES (%s)"
+      #  cursor.execute(query, (search))
+       # db.commit()
+
+        #return jsonify({ "📦 message": "User data saved successfully" }), 200
+
+    #except Exception as e:
+     #   print("❌ Error saving data:", e)
+      #  return jsonify({ "error": str(e) }), 500

@@ -184,6 +184,28 @@ function processSearchBox(e){
 
 
 
+
+
+// SEND THE INFORMATION FROM THE SEARCHBOX TO THE DATABASE
+fetch("http://localhost:3000/searches", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ search_term: searchRequest })
+})
+.then(response => response.json())
+.then(data => {
+  console.log("✅ Successfully saved to DB:", data);
+})
+.catch(err => {
+  console.error("❌ Error saving to DB:", err);
+});
+
+
+
+
+
   // process search request
   const responseElement = document.getElementById("responseText");
 

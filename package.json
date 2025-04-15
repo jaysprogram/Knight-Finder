@@ -1,6 +1,28 @@
 {
   "dependencies": {
     "bootstrap": "^5.3.3",
+    "cors": "^2.8.5",
+    "express": "^5.1.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^3.14.0",
     "openai": "^4.80.1"
-  }
+  },
+  "name": "knight-finder",
+  "version": "1.0.0",
+  "main": "background.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jaysprogram/Knight-Finder.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jaysprogram/Knight-Finder/issues"
+  },
+  "homepage": "https://github.com/jaysprogram/Knight-Finder#readme",
+  "description": ""
 }
