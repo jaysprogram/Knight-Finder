@@ -4,21 +4,17 @@ import google.generativeai as genai
 import requests
 from flask_cors import CORS
 
+# 1) Install and import the google.genai SDK
+#    pip install google-genai
+from google import genai
+from google.genai import types
+
 app = Flask(__name__)
 CORS(app)
 
-GEMINI_API_KEY = 'AIzaSyBYZa6iVFRLCafUQXi0LkOZseUybNC6Rxg'
-GEMINI_API_URL = f'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-pro:generateContent?key={GEMINI_API_KEY}'
-
-# Initialize the Client y
-genai.configure(api_key=GEMINI_API_KEY)
-
-import json  # Make sure this is imported
-
-
 #database
 import mysql.connector #load sql library
-"""
+
 # open connection to mysql database
 db = mysql.connector.connect(
 host="localhost",
@@ -28,7 +24,7 @@ host="localhost",
         )
 
 cursor = db.cursor() # create a cursor to talk to the database
-"""
+
 
 # set up flask route
 @app.route('/searches', methods=['POST'])
@@ -50,19 +46,12 @@ def save_search_term():
         print("❌ Error saving search term:", e)
         return jsonify({ "error": "Database error", "details": str(e) }), 500
 
+# 2) Configure your API key and initialize the client
+API_KEY = "AIzaSyBYZa6iVFRLCafUQXi0LkOZseUybNC6Rxg"
+client = genai.Client(api_key=API_KEY)
 
-
-
-
-@app.route('/api/gemini', methods=['POST'])
-def call_gemini():
-    try:
-        data = request.get_json(force=True)
-        user_prompt = data.get('prompt', "")
-        system_prompt = data.get('system', "")
-
-        # Comprehensive system prompt with explicit formatting instructions
-        full_system_prompt = f"""{system_prompt}
+# 3) Define your comprehensive system prompt text.
+SYSTEM_PROMPT = f"""
 
 **ALL QUERIES SHOULD AUTOMATICALLY BE ASSUMED THAT THEY ARE TALKING ABOUT THE UCF MYUCF STUDENT PORTAL**
         
@@ -80,7 +69,7 @@ BEGIN with a medieval-style greeting
      • [Wisdom Bullet 1]
      • [Wisdom Bullet 2]
 
-CURRENT QUEST: Provide a scholarly medieval response to: {user_prompt}
+CURRENT QUEST: Provide a scholarly medieval response
 
 ABSOLUTELY CRITICAL INSTRUCTIONS:
 - Use archaic language very sparsely, not in every sentence but rather once per paragraph.
@@ -93,80 +82,59 @@ RESPOND PRECISELY IN THE FORMAT ABOVE OR FACE ACADEMIC DISHONOR!
 
 THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG."""
 
-        # Prepare payload for Gemini API
-        gemini_payload = {
-            "contents": [
-                {
-                    "role": "user",
-                    "parts": [
-                        { "text": full_system_prompt }
-                    ]
-                }
-            ],
-            "generationConfig": {
-                "temperature": 0.7,
-                "maxOutputTokens": 500,
-                "topP": 0.9,
-                "topK": 40
-            }
-        }
 
-        # Debug: print payload
-        print("📦 Payload sent to Gemini:")
-        print(json.dumps(gemini_payload, indent=2))
+#    The system instructions are added via the configuration below.
+chat = client.chats.create(
+    model="gemini-2.0-flash",
+    config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT)
+)
 
-        # Perform API request
-        response = requests.post(
-            GEMINI_API_URL,
-            headers={ "Content-Type": "application/json" },
-            json=gemini_payload
-        )
+@app.route("/api/gemini", methods=["POST"])
+def chat_with_gemini():
+    """
+    This endpoint sends a user's new prompt to the single persistent chat,
+    then returns the assistant's latest response.
+    """
+    try:
+        data = request.get_json(force=True)
+        user_prompt = data.get("prompt", "").strip()
 
-        # Debug response details
-        print("📨 [DEBUG] Status Code:", response.status_code)
-        print("📨 [DEBUG] Response Headers:", response.headers)
-        
-        # Detailed error logging
-        if response.status_code != 200:
-            print("❌ [DEBUG] Response Content:", response.text)
-            return jsonify({
-                "error": "API request failed",
-                "status_code": response.status_code,
-                "response_text": response.text
-            }), 500
+        # If no prompt was provided, bail out.
+        if not user_prompt:
+            return jsonify({"error": "No prompt provided"}), 400
 
-        # Parse JSON response
-        try:
-            data = response.json()
-        except json.JSONDecodeError as e:
-            print(f"❌ [DEBUG] JSON Decode Error: {e}")
-            print(f"❌ [DEBUG] Response Text: {response.text}")
-            return jsonify({
-                "error": "Failed to decode JSON response",
-                "response_text": response.text
-            }), 500
+        # Send user's message to the existing chat.
+        response = chat.send_message(user_prompt)
 
-        # Extract AI text
-        try:
-            ai_text = data['candidates'][0]['content']['parts'][0]['text'].strip()
-            return jsonify({ "answer": ai_text }), 200
-        except (KeyError, IndexError) as e:
-            print(f"❌ [DEBUG] Response Parsing Error: {e}")
-            print(f"❌ [DEBUG] Full Response Data: {json.dumps(data, indent=2)}")
-            return jsonify({
-                "error": "Failed to extract AI response",
-                "response_data": data
-            }), 500
+        # Extract the assistant's reply.
+        ai_answer = response.text
+
+        # Return the assistant's response.
+        return jsonify({"answer": ai_answer}), 200
 
     except Exception as e:
-        # Catch-all error handling
-        print(f"❌ [DEBUG] Unexpected Error: {e}")
-        import traceback
-        traceback.print_exc()
-        return jsonify({
-            "error": "An unexpected error occurred",
-            "error_details": str(e)
-        }), 500
+        print(f"❌ [ERROR] {e}")
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/gemini/history", methods=["GET"])
+def get_chat_history():
+    """
+    Optional endpoint to view the entire chat so far.
+    """
+    history = chat.get_history()  # returns a list of messages
+    # Each message has a .role (string) and a .parts list (each part has .text)
+    conversation = []
+    for message in history:
+        # role: "user" or "model" (the assistant)
+        msg_role = message.role
+        # Each message can have multiple parts, but typically there's just one
+        parts_text = [p.text for p in message.parts]
+        conversation.append({
+            "role": msg_role,
+            "parts": parts_text
+        })
+
+    return jsonify({"history": conversation}), 200
 
 if __name__ == "__main__":
     app.run(port=3000, debug=True)
