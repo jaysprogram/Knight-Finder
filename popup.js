@@ -200,7 +200,7 @@ function processSearchBox(e) {
 
           //Highlight them
           // popup.js
-          arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, '')).map(element => element.replace(/[.,]/g, ''));
+          if(response.result.match(/"([^"]+)"/g) != null) arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, '')).map(element => element.replace(/[.,]/g, ''));
           let newValue = arrayOfStepStrings; // The new value you want to set
           chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
               chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {

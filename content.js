@@ -42,16 +42,16 @@ function recurringHighlight() {
 
   //Highlight the target text
   for(let i = 0; i < arrayOfStepStrings.length; i++) {
-    console.log(arrayOfStepStrings[i]);
+    //console.log(arrayOfStepStrings[i]);
     const keyword = arrayOfStepStrings[i];
     //Highlight the target text
     var xpath = "//a[contains(text(), '" + keyword + "')]";
     var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-    console.log(document);
+    //console.log(document);
   
     //Highlight the element
     if(matchingElement != null) {
-      console.log("jlkj;j;");
+      //console.log("jlkj;j;");
       matchingElement.style.backgroundColor = "yellow";
     }
   }
