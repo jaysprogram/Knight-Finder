@@ -23,7 +23,7 @@ function highlightText(keyword) {
   keyword.replace(/[.,]/g, '');
   keyword.replace(/s$/, '');
 
-  var xpath = "//a[contains(text(), '" + keyword + "')]";
+  var xpath = "//a[contains(text(), '>" + keyword + "<')]";
   var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
   
   //console.log(matchingElement);

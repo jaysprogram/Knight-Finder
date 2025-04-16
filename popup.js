@@ -1,5 +1,8 @@
 // popup.js
 
+//Define the responseElement:
+const responseElement = document.getElementById("responseText");
+
 // Creating a variable to take in the input of the user from the searchBox
 let searchBoxForm = document.getElementById("searchBox");
 
@@ -149,7 +152,7 @@ function processSearchBox(e) {
   // Grab user text
   const searchRequest = document.getElementById("searchBar").value.trim();
   document.getElementById("searchBar").value = "";
-  const responseElement = document.getElementById("responseText");
+  
   if (!searchRequest) {
     responseElement.innerText = "Please enter a question.";
     return;
@@ -187,17 +190,17 @@ function processSearchBox(e) {
       // 3. On success, response.result is Gemini's latest answer
       if (response?.result) {
         responseElement.innerText = response.result;
-
+        
           
-          
-                 // 4. Store assistant’s answer back into convohistory
+        // 4. Store assistant’s answer back into convohistory
         convohistory.push({
           role: "assistant",
           content: response.result
         });
+
           //Highlight them
           // popup.js
-          arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, ''))
+          arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, '')).map(element => element.replace(/[.,]/g, ''));
           let newValue = arrayOfStepStrings; // The new value you want to set
           chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
               chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {

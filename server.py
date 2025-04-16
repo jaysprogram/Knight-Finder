@@ -15,6 +15,11 @@ CORS(app)
 #database
 import mysql.connector #load sql library
 
+#Import the google search tool
+from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
+
+"""
+
 # open connection to mysql database
 db = mysql.connector.connect(
 host="localhost",
@@ -25,6 +30,7 @@ host="localhost",
 
 cursor = db.cursor() # create a cursor to talk to the database
 
+"""
 
 # set up flask route
 @app.route('/searches', methods=['POST'])
@@ -50,6 +56,11 @@ def save_search_term():
 API_KEY = "AIzaSyBYZa6iVFRLCafUQXi0LkOZseUybNC6Rxg"
 client = genai.Client(api_key=API_KEY)
 
+#Define the google search tool
+google_search_tool = Tool(
+    google_search = GoogleSearch()
+)
+
 # 3) Define your comprehensive system prompt text.
 SYSTEM_PROMPT = f"""
 
@@ -64,11 +75,13 @@ BEGIN with a medieval-style greeting
      Step One: [First Action] (THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG.)
      Step Two: [Second Action] (THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG.)
      Step Three: [Third Action] (THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG.)
-     Step (final): [Concluding Action] (THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG.)
+     Step (final): [etc] (THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG.)
    - 🛡️ Knightly Counsel:
      • [Wisdom Bullet 1]
      • [Wisdom Bullet 2]
 
+YOU DO NOT HAVE TO PROVIDE THREE STEPS OR EVEN STEPS EXPLICITLY, BUT IF THE STUDENT IS NAVIGATING MYUCF, PLEASE GIVE THEM THIS STEP BASED FORMAT.
+     
 CURRENT QUEST: Provide a scholarly medieval response
 
 ABSOLUTELY CRITICAL INSTRUCTIONS:
@@ -80,13 +93,134 @@ ABSOLUTELY CRITICAL INSTRUCTIONS:
 
 RESPOND PRECISELY IN THE FORMAT ABOVE OR FACE ACADEMIC DISHONOR!
 
-THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG."""
+THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG.
+
+TO HELP YOU UNDERSTAND WHAT ARE THE SPECIFIC NAMES OF THE OPTIONS STUDENTS HAVE TO CLICK ON THE MYUCF SITE, I HAVE PROVIDED THE HIERARCHY BELOW. 
+SOME SECTIONS ARE UNDER OTHERS, SO YOU WILL NEED TO SPECIFY A SECTION FIRST TO CLICK ON SO THAT THE STUDENT YOU ARE GUIDING CAN ACCESS AN ELEMENT UNDER IT!
+YOU MUST START WITH THE PHRASE ON THE OUTSIDE FIRST, SO FOR EXAMPLE IF A STUDENT WANTS TO ADD CLASSES, YOU WOULD PROVIDE THEM THE STEPS "Student Self Service" -> "Student Records" -> "Enrollment" -> "Add Classes"
+BECAUSE OF THIS HIERARCHY, YOU MUST HAVE STEP ONE INCLUDE ONE OF THESE PHRASES IF THEIR QUESTION IS ABOUT NAVIGATION ON MYUCF:
+Academic Resources
+Student Self Service
+My Content
+Reporting Tools
+PeopleTools
+Change my NID Password
+UCF Email
+Webcourses@UCF
+UCF Home Page
+UCF COM Home Page
+My Preferences
+CHOOSE THE CORRECT PHRASE TO ANSWER THE STUDENT'S QUESTION.
+YOU MUST SURROUND THESE PHRASES WITH QUOTATIONS LIKE "Specific Given Phrase" SO THAT A SCRIPT READING YOUR TEXT WORKS PROPERLY!
+HERE ARE THE FOLLOWING SPECIFIC BUTTON PHRASES YOU MUST USE TO CORRECTLY NAVIGATE A USER THROUGH THE WEBSITE:
+Academic Resources
+    Learning Online
+    GPA Estimator
+Student Self Service
+    Personal Information
+        Names
+        Ethnicity
+        Addresses
+        Email Addresses
+        Phone Numbers
+        Emergency Contacts
+        FERPA/Directory Restrictions
+        UCFID Info
+    Holds & To Dos
+        Holds
+        To Dos
+    Student Records
+        Course Catalog & Schedule
+            Class Search/Browse Catalog
+        Bulletin Boards
+            Enrollment
+        Academic History
+            myKnightAudit
+            View My Grades
+            Apply for Grade Forgiveness
+            Grade Forgiveness Status
+            Apply for Graduation
+            Enrollment Verification
+            Transfer Credit Report
+            Academic Information
+            View My Advisors
+        Enrollment
+            View My Class Schedule
+            Add Classes
+            Drop/Withdraw Classes
+            Swap Classes
+            View My Weekly Schedule
+            View Enrollment Appointment
+            View My Class Schedule
+    Graduate Students
+        Student Center
+        Graduate Bulletin
+        Graduate Catalog
+        Graduate Student Association
+        Graduate Studies Website
+        Request Graduate Information
+        Research Week
+    International Students
+        Student Center
+        Bulletin Board
+        I-20 Status
+        International Services Website
+        Sprintax Link
+        Sprintax Instructions
+    Undergraduate Admissions
+        Student Center
+        Admissions Home Page
+        Application Document Status
+        Visiting the Campus
+        Immunization Information
+        Reactivation Form
+        Orientation
+        Scholarships
+    Student Accounts
+        Tuition Payment Plan
+        Student Center
+        View Your Account
+        Fee Invoice
+        Direct Deposit
+        Student Services Website
+        1098-T Tax Management
+    Financial Aid
+        View Financial Aid
+        Student Center
+    Scholarship Application
+        Home Page
+    Housing
+        Housing Portal
+        Missing Person Contact
+        Information
+    Dining Services
+        Dining Memberships
+        Dining Locations & Menus
+        Dining Catering
+    User Settings
+        Enrollment
+        Student Center
+        myKnightSTAR
+    Placement Test Self-Enrollment
+    Student Center
+    myKnightSTAR
+My Content
+Reporting Tools
+PeopleTools
+Change my NID Password
+UCF Email
+Webcourses@UCF
+UCF Home Page
+UCF COM Home Page
+My Preferences
+
+"""
 
 
-#    The system instructions are added via the configuration below.
+# The system instructions are added via the configuration below.
 chat = client.chats.create(
     model="gemini-2.0-flash",
-    config=types.GenerateContentConfig(system_instruction=SYSTEM_PROMPT)
+    config=types.GenerateContentConfig(tools=[google_search_tool], system_instruction=SYSTEM_PROMPT)
 )
 
 @app.route("/api/gemini", methods=["POST"])
