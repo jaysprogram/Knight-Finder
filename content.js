@@ -20,9 +20,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 function highlightText(keyword) {
   //Highlight the target text
-  keyword.replace(/[.,]/g, '');
-  keyword.replace(/s$/, '');
-
   var xpath = "//a[contains(text(), '>" + keyword + "<')]";
   var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
   
@@ -30,6 +27,7 @@ function highlightText(keyword) {
   
   //Highlight the element
   if(matchingElement != null) {
+    console.log("jlkj;j;");
     matchingElement.style = "background-color: yellow;";
   }
 }
@@ -38,14 +36,24 @@ function recurringHighlight() {
   //Remove highlighting
   const xpathH = "//*[@style[contains(., 'background-color: yellow;')]]";
   const result = document.evaluate(xpathH, document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-    
-  //Highlight the target text
   for (let i = 0; i < result.snapshotLength; i++) {
     result.snapshotItem(i).style = ""; 
   }
+
+  //Highlight the target text
   for(let i = 0; i < arrayOfStepStrings.length; i++) {
+    console.log(arrayOfStepStrings[i]);
     const keyword = arrayOfStepStrings[i];
-    highlightText(keyword);
+    //Highlight the target text
+    var xpath = "//a[contains(text(), '" + keyword + "')]";
+    var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    console.log(document);
+  
+    //Highlight the element
+    if(matchingElement != null) {
+      console.log("jlkj;j;");
+      matchingElement.style.backgroundColor = "yellow";
+    }
   }
 }
   
