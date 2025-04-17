@@ -17,6 +17,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 
+let contentSave = "";
+contentSave = sessionStorage.getItem("contentSave") ? sessionStorage.getItem("contentSave") : "";
+
+//Send content memory
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "RequestSave") {
+   sendResponse({status: "success", message: contentSave});
+  }
+});
+
+//Save content memory
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+if (request.action === "SetSave") {
+  contentSave = request.message;
+  sessionStorage.setItem("contentSave", request.message);
+  sendResponse({status: "success"});
+}
+});
 
 function highlightText(keyword) {
   //Highlight the target text
@@ -26,8 +44,8 @@ function highlightText(keyword) {
   //console.log(matchingElement);
   
   //Highlight the element
-  if(matchingElement != null) {
-    console.log("jlkj;j;");
+  if(matchingElement != null && matchingElement.innerText == keyword) {
+    console.log(matchingElement.innerText);
     matchingElement.style = "background-color: yellow;";
   }
 }
@@ -45,18 +63,19 @@ function recurringHighlight() {
     //console.log(arrayOfStepStrings[i]);
     const keyword = arrayOfStepStrings[i];
     //Highlight the target text
+    //Why won't this change???
     var xpath = "//a[contains(text(), '" + keyword + "')]";
     var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
     //console.log(document);
   
     //Highlight the element
-    if(matchingElement != null) {
+    if(matchingElement != null && matchingElement.innerText == keyword) {
       //console.log("jlkj;j;");
       matchingElement.style.backgroundColor = "yellow";
     }
   }
 }
-  
+
 
 //Set Up the content array, then set the highlighting to be called on an interval
 //Set up the array by loading in session content
