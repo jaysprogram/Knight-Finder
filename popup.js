@@ -1,3 +1,8 @@
+// popup.js
+
+//Define the responseElement:
+const responseElement = document.getElementById("responseText");
+
 // Creating a variable to take in the input of the user from the searchBox
 let searchBoxForm = document.getElementById("searchBox");
 
@@ -83,7 +88,7 @@ async function saveHistory(searchRequest) {
   // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
-    history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
+    if(history != null) history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
   } 
   else {
       // For loop populating array
@@ -133,94 +138,125 @@ async function loadHistory() {
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
     history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
+  } else {
+    // For loop populating array
+    // We'll build up a list as a string
+    let htmlStr = "<ol>";
+
+    for (let i = 0; i < numHistorySearches; i++) {
+      const key = `history${i}`;
+    
+      if (Object.hasOwn(data.pastSearches, key)) {
+        let searchText = data.pastSearches[key];
+        // Truncate to 12 characters, then add "..."
+        const truncatedText = (searchText.length > 28)
+          ? searchText.slice(0, 28) + "..."
+          : searchText;
+    
+        historyQueue[i] = searchText;
+    
+        htmlStr += `<li> <button class="history-item">${truncatedText}</button> </li>`;
+      }
+    }
+    
+    htmlStr += "</ol>";
+    history.innerHTML = htmlStr;
+    }
+}
+
+let arrayOfStepStrings = [];
+
+// snippet from pop.js
+
+// A global array: each element is { role: "user"|"assistant", content: string }
+let convohistory = [];
+
+/**
+ * Called when user submits the search prompt.
+ */
+function processSearchBox(e) {
+  // prevent form refresh
+  if (e.preventDefault) e.preventDefault();
+  
+  // Grab user text
+  const searchRequest = document.getElementById("searchBar").value.trim();
+  document.getElementById("searchBar").value = "";
+  
+  if (!searchRequest) {
+    responseElement.innerText = "Please enter a question.";
     return;
   }
 
-  // For loop populating array
-  // We'll build up a list as a string
-  let htmlStr = "<ol>";
-
-  for (let i = 0; i < numHistorySearches; i++) {
-    const key = `history${i}`;
-  
-    if (Object.hasOwn(data.pastSearches, key)) {
-      let searchText = data.pastSearches[key];
-      // Truncate to 12 characters, then add "..."
-      const truncatedText = (searchText.length > 28)
-        ? searchText.slice(0, 28) + "..."
-        : searchText;
-  
-      historyQueue[i] = searchText;
-  
-      htmlStr += `<li> <button class="history-item">${truncatedText}</button> </li>`;
-    }
-  }
-  
-  htmlStr += "</ol>";
-  history.innerHTML = htmlStr;
-
-  // Add event listeners to each button to reload the search
-  const historyButtons = history.querySelectorAll(".history-item");
-
-  historyButtons.forEach((button, index) => {
-    button.addEventListener("click", () => {
-      const selectedSearch = historyQueue[index];
-      // Set search bar value and submit the form
-      searchBoxElement.value = selectedSearch;
-  
-      // Simulate going back to main page
-      document.querySelectorAll(".page").forEach(p => p.classList.remove('active'));
-      document.getElementById("mainPage").classList.add("active");
-  
-      // Manually trigger the search submit
-      processSearchBox(new Event("submit"));
-    });
+  // 1. Insert user’s new question into convohistory
+  convohistory.push({
+    role: "user",
+    content: searchRequest
   });
-  
-}
- /*
-  // Fetch data from Chrome
-  const data = await chrome.storage.sync.get("pastSearches");
-  if(data != undefined && data.pastSearches != undefined && "history1" in data.pastSearches) {
-    const pastSearches = {};
-    Object.assign(pastSearches, data.pastSearches);
-    history.innerHTML = pastSearches["history1"];
-  } else {
-    history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
-  }
-}
-*/
 
-function processSearchBox(e){
+  // Loading text
+  const knightPhrases = [
+    "Consulting the scrolls...",
+    "Sharpening my thoughts...",
+    "Summoning wisdom from the Round Table...",
+    "Unsheathing the answer...",
+    "Preparing your quest map...",
+    "In council with the sages...",
+    "Drawing from the tomes of knowledge...",
+    "Hark! A solution is forming...",
+    "Engaging in noble contemplation...",
+    "Gathering guidance from the royal archives..."
+  ];
+  responseElement.innerText = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
 
-  // call preventRefresh
-  preventRefresh(e);
-  // Saving a duplicate the user enters and reset original to empty
-  let searchRequest = searchBoxElement.value;
-  searchBoxElement.value = "";
-
-
-
-  // process search request
-  const responseElement = document.getElementById("responseText");
-
-  if (!searchRequest) {
-      responseElement.innerText = "Please enter a question.";
-      return;
-  }
-
-  responseElement.innerText = "Loading...";
-
-  chrome.runtime.sendMessage({ action: "fetchGemini", prompt: searchRequest }, (response) => {
+  // 2. Send prompt + entire conversation to background script
+  chrome.runtime.sendMessage(
+    {
+      action: "fetchGemini",
+      prompt: searchRequest,
+      history: convohistory,
+    },
+    (response) => {
+      // 3. On success, response.result is Gemini's latest answer
       if (response?.result) {
-          responseElement.innerText = response.result;
-      } else {
-          responseElement.innerText = "Error fetching response.";
-      }
-  });
-  
+        responseElement.innerText = response.result;
+        
+          
+        // 4. Store assistant’s answer back into convohistory
+        convohistory.push({
+          role: "assistant",
+          content: response.result
+        });
 
-  //Save the history
+          //Highlight them
+          // popup.js
+          if(response.result.match(/"([^"]+)"/g) != null) arrayOfStepStrings = response.result.match(/"([^"]+)"/g).map(element => element.replace(/"/g, '')).map(element => element.replace(/[.,]/g, ''));
+          let newValue = arrayOfStepStrings; // The new value you want to set
+          chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+              chrome.tabs.sendMessage(tabs[0].id, {action: "modifyVariable", newValue: newValue}, (response) => {
+                  if (response.status === "success") {
+                      console.log("Variable modified successfully");
+                  }
+              });
+          });
+
+          /*
+          for(let i = 0; i < arrayOfStepStrings.length; i++) {
+            const keyword = arrayOfStepStrings[i];
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              chrome.scripting.executeScript({
+                target: { tabId: tabs[0].id },
+                function: highlightText,
+                args: [keyword],
+              });
+            });
+        }
+        */
+      } else {
+        responseElement.innerText = "Error fetching response.";
+      }
+    }
+  );
+
+  // Optionally store user text in local search history too
   saveHistory(searchRequest);
-  
 }
