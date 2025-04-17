@@ -44,8 +44,8 @@ function highlightText(keyword) {
   //console.log(matchingElement);
   
   //Highlight the element
-  if(matchingElement != null) {
-    console.log("jlkj;j;");
+  if(matchingElement != null && matchingElement.innerText == keyword) {
+    console.log(matchingElement.innerText);
     matchingElement.style = "background-color: yellow;";
   }
 }
@@ -69,7 +69,7 @@ function recurringHighlight() {
     //console.log(document);
   
     //Highlight the element
-    if(matchingElement != null) {
+    if(matchingElement != null && matchingElement.innerText == keyword) {
       //console.log("jlkj;j;");
       matchingElement.style.backgroundColor = "yellow";
     }
