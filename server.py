@@ -18,7 +18,6 @@ import mysql.connector #load sql library
 #Import the google search tool
 from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
 
-"""
 
 # open connection to mysql database
 db = mysql.connector.connect(
@@ -30,9 +29,10 @@ host="localhost",
 
 cursor = db.cursor() # create a cursor to talk to the database
 
-"""
 
-# set up flask route
+
+# set up flask route 
+"""
 @app.route('/searches', methods=['POST'])
 def save_search_term():
     try:
@@ -41,9 +41,24 @@ def save_search_term():
 
         if not search_term:
             return jsonify({ "❌ error": "No search_term provided" }), 400
+        #idk if this is needed rn
+        #query = "INSERT INTO searches (search_term) VALUES (%s)"
+        #cursor.execute(query, (search_term,))
+        
+        # make the keyword lower case
+        keyword = search_term.strip().lower()
 
-        query = "INSERT INTO searches (search_term) VALUES (%s)"
-        cursor.execute(query, (search_term,))
+        #check if the keyword exists
+        cursor.execute("SELECT count FROM searches WHERE search_term = %s", (keyword, 1))
+        existing = cursor.fetchone()
+        
+        if existing:
+            # Update the count
+            cursor.execute("UPDATE searches SET count = count + 1 WHERE search_term = %s", (keyword,))
+        else:
+            # Insert new search term with count = 1
+            cursor.execute("INSERT INTO searches (search_term, count) VALUES (%s, 1)", (keyword,))
+
         db.commit()
 
         return jsonify({ "success": True, "insertedId": cursor.lastrowid }), 200
@@ -51,6 +66,55 @@ def save_search_term():
     except Exception as e:
         print("❌ Error saving search term:", e)
         return jsonify({ "error": "Database error", "details": str(e) }), 500
+"""
+@app.route('/searches', methods=['POST'])
+def save_search_term():
+    try:
+        data = request.get_json()
+        search_term = data.get('search_term')
+
+        if not search_term:
+            return jsonify({ "error": "No search_term provided" }), 400
+
+        keyword = search_term.strip().lower()
+
+        print("🔍 Incoming search:", search_term)
+        print("🔍 Normalized keyword:", keyword)
+
+        # Check if the keyword already exists
+        cursor.execute("SELECT count FROM searches WHERE search_term = %s", (keyword,))
+        existing = cursor.fetchone()
+
+        print("🧠 Existing entry:", existing)
+
+        if existing:
+            print("↪️ Updating count...")
+            cursor.execute("UPDATE searches SET count = count + 1 WHERE search_term = %s", (keyword,))
+        else:
+            print("➕ Inserting new keyword...")
+            cursor.execute("INSERT INTO searches (search_term, count) VALUES (%s, %s)", (keyword, 1))
+
+        db.commit()
+        print("✅ Successfully committed to DB")
+
+        return jsonify({ "success": True }), 200
+
+    except Exception as e:
+        print("❌ Error saving search term:", e)
+        return jsonify({ "error": "Database error", "details": str(e) }), 500
+# tell flask to start function when a get request is given i.e button click
+@app.route('/searches', methods=['GET'])
+def get_search_terms():
+
+    #get last 10 items
+    cursor.execute("SELECT search_term FROM searches ORDER BY id DESC LIMIT 10")
+    
+    # take the result and fetch it all
+    results = cursor.fetchall()
+    
+
+    search_terms = [row[0] for row in results]
+    return jsonify({ "searches": search_terms })    
 
 # 2) Configure your API key and initialize the client
 API_KEY = "AIzaSyBYZa6iVFRLCafUQXi0LkOZseUybNC6Rxg"
@@ -96,8 +160,10 @@ RESPOND PRECISELY IN THE FORMAT ABOVE OR FACE ACADEMIC DISHONOR!
 THE STUDENTS YOU ARE DIRECTING HAVE AN INCREDIBLY LOW ATTENTION SPAN. YOU NEED TO MAKE SURE YOUR MESSAGES PER DIRECTION ARE VERY SHORT AND ARE ONLY ONE SETENCE LONG.
 
 TO HELP YOU UNDERSTAND WHAT ARE THE SPECIFIC NAMES OF THE OPTIONS STUDENTS HAVE TO CLICK ON THE MYUCF SITE, I HAVE PROVIDED THE HIERARCHY BELOW. 
-SOME SECTIONS ARE UNDER OTHERS, SO YOU WILL NEED TO SPECIFY A SECTION FIRST TO CLICK ON SO THAT THE STUDENT YOU ARE GUIDING CAN ACCESS AN ELEMENT UNDER IT!
+SOME SECTIONS ARE UNDER OTHERS, SO YOU WILL NEED TO SPECIFY A SECTION FIRST TO CLICK ON SO THAT THE STUDENT YOU ARE GUIDING CAN ACCESS AN ELEMENT UNDER IT! 
 YOU MUST START WITH THE PHRASE ON THE OUTSIDE FIRST, SO FOR EXAMPLE IF A STUDENT WANTS TO ADD CLASSES, YOU WOULD PROVIDE THEM THE STEPS "Student Self Service" -> "Student Records" -> "Enrollment" -> "Add Classes"
+IN THE CASE THAT SOMEONE ASKS ANYTHING THAT HAS STUDENT RECORDS, YOU MUST MENTION IT. DONT SKIP IT.
+
 BECAUSE OF THIS HIERARCHY, YOU MUST HAVE STEP ONE INCLUDE ONE OF THESE PHRASES IF THEIR QUESTION IS ABOUT NAVIGATION ON MYUCF:
 Academic Resources
 Student Self Service
@@ -110,7 +176,7 @@ Webcourses@UCF
 UCF Home Page
 UCF COM Home Page
 My Preferences
-CHOOSE THE CORRECT PHRASE TO ANSWER THE STUDENT'S QUESTION.
+CHOOSE THE CORRECT PHRASE TO ANSWER THE STUDENT'S QUESTION. MAKE SURE TO PRIORITIZE THE LIST OVER GOOGLE
 YOU MUST SURROUND THESE PHRASES WITH QUOTATIONS LIKE "Specific Given Phrase" SO THAT A SCRIPT READING YOUR TEXT WORKS PROPERLY!
 HERE ARE THE FOLLOWING SPECIFIC BUTTON PHRASES YOU MUST USE TO CORRECTLY NAVIGATE A USER THROUGH THE WEBSITE:
 Academic Resources

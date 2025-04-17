@@ -3,6 +3,18 @@
 //Define the responseElement:
 const responseElement = document.getElementById("responseText");
 
+//Remember the current session
+chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+  chrome.tabs.sendMessage(tabs[0].id, {action: "RequestSave"}, (response) => {
+    responseElement.innerText = response.message;
+    if(responseElement.innerText == "") {
+      responseElement.innerText = "Sir Guidewell awaits your instructions brave knight!";
+    }
+    console.log(response.message);
+  });
+});
+  
+
 // Creating a variable to take in the input of the user from the searchBox
 let searchBoxForm = document.getElementById("searchBox");
 
@@ -15,9 +27,12 @@ searchBoxForm.addEventListener("submit",processSearchBox);
 // Starting Backend for History
 var numHistorySearches = 10;
 
+
+
 //Call the asynchronous function to set the history
 let history = document.getElementById("history");
 loadHistory();
+
 
 // pages buttons, this is where we make it seem a new page appears
 document.addEventListener('DOMContentLoaded', () => { // will only run if everything is loaded
@@ -49,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
 
   document.getElementById('topSearchBtn').addEventListener("click", () => {
     showPage(topSearch);
+    loadTopSearches();
   });
 
   document.getElementById('bookmarkBtn').addEventListener("click", () => {
@@ -66,46 +82,72 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   });
 });
 
+
 // Function to stop the page from refreshing after every button pressed
 function preventRefresh(e){
+  // Checks to see if the method exists on the browser being used
+  // e.preventDefault stops the page from refreshing after input
   if (e.preventDefault) e.preventDefault();
 }
 
+
+
+
 async function saveHistory(searchRequest) {
+  //Pull history first
+  // History Queue is an aray of Strings with most recent searches
   let historyQueue = [];
+  
+  // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
     if(history != null) history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
   } 
   else {
+      // For loop populating array
     for(let i = 0; i < numHistorySearches; i++){
+      // Checks to make sure object pastSearches has the property we are looking for
       if(Object.hasOwn(data.pastSearches, "history" + (i).toString())){
         historyQueue[i] = data.pastSearches["history" + (i).toString()];
       } 
     }
   }
 
+  //Actually Save the History
   let counter = historyQueue.length;
   if(counter >= numHistorySearches){
+    // shift everything down
     for(let i = 0; i < numHistorySearches - 1; i++){
       historyQueue[i] = historyQueue[i+1];
     }
+    // Replace last element
     historyQueue[counter - 1] = searchRequest;
+      
   } else {
+    //Add another element to search history
     historyQueue[counter] = searchRequest;
   }
 
+  //Store search queue inside of past searches
   let pastSearches = {};
+  
   for(let i = 0; i < historyQueue.length; i++) {
     Object.defineProperty(pastSearches, "history" + (i).toString(), {
       value: historyQueue[i], writable: true, enumerable: true, configurable: true
     });
   }
+
+  //Tell chrome to store the data in past searches
   chrome.storage.sync.set({pastSearches});
 }
 
+// Function called to display history
 async function loadHistory() {
+  
+  // History Queue is an aray of Strings with most recent searches
   let historyQueue = [];
+  
+  // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
     history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
@@ -134,6 +176,40 @@ async function loadHistory() {
     history.innerHTML = htmlStr;
     }
 }
+async function loadTopSearches() {
+  console.log("test");
+  // connect to the database
+  try {
+    const response = await fetch("http://localhost:3000/searches");
+    const data = await response.json();
+    
+    // debugging
+    console.log("Data: ", data);
+    const listContainer = document.getElementById("topSearchesList");
+    /*if (!listContainer) {
+      console.warn("Element #topSearchesList not found.");
+      return;
+    }*/
+
+    //clear our what was on the page
+    listContainer.innerHTML = "";
+    if(!data.searches||data.searches.length == 0){
+      listContainer.innerHTML = "<li>No recent searches found.</li>";
+      return;
+    }
+    else{
+ // travers through every item in the database
+    data.searches.forEach(search => {
+      const item = document.createElement("li");
+      item.textContent = search;
+      listContainer.appendChild(item);
+    });
+    }
+  } catch (err) {
+    console.error("Failed to fetch top searches", err);
+  }
+}
+
 
 let arrayOfStepStrings = [];
 
@@ -146,6 +222,7 @@ let convohistory = [];
  * Called when user submits the search prompt.
  */
 function processSearchBox(e) {
+
   // prevent form refresh
   if (e.preventDefault) e.preventDefault();
   
@@ -157,6 +234,24 @@ function processSearchBox(e) {
     responseElement.innerText = "Please enter a question.";
     return;
   }
+
+  // save information from the search box to the database
+fetch("http://localhost:3000/searches", { // start request to backend
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json" // tells flask to expect a type json body
+  },
+  body: JSON.stringify({ search_term: searchRequest }) // turn the json body into a string and send it to search_term
+})
+
+// wait for server to reply for debugging
+.then(response => response.json())
+.then(data => {
+  console.log("✅ Successfully saved to DB:", data);
+})
+.catch(err => {
+  console.error("❌ Error saving to DB:", err);
+});
 
   // 1. Insert user’s new question into convohistory
   convohistory.push({
@@ -190,6 +285,15 @@ function processSearchBox(e) {
       // 3. On success, response.result is Gemini's latest answer
       if (response?.result) {
         responseElement.innerText = response.result;
+
+        //Save this result
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+          chrome.tabs.sendMessage(tabs[0].id, {action: "SetSave", message: response.result}, (response) => {
+            if (response.status === "success") {
+              console.log("Variable modified successfully");
+            }
+          });
+        });
         
           
         // 4. Store assistant’s answer back into convohistory
@@ -209,6 +313,7 @@ function processSearchBox(e) {
                   }
               });
           });
+
 
           /*
           for(let i = 0; i < arrayOfStepStrings.length; i++) {
