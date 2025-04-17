@@ -27,9 +27,12 @@ searchBoxForm.addEventListener("submit",processSearchBox);
 // Starting Backend for History
 var numHistorySearches = 10;
 
+
+
 //Call the asynchronous function to set the history
 let history = document.getElementById("history");
 loadHistory();
+
 
 // pages buttons, this is where we make it seem a new page appears
 document.addEventListener('DOMContentLoaded', () => { // will only run if everything is loaded
@@ -78,46 +81,72 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   });
 });
 
+
 // Function to stop the page from refreshing after every button pressed
 function preventRefresh(e){
+  // Checks to see if the method exists on the browser being used
+  // e.preventDefault stops the page from refreshing after input
   if (e.preventDefault) e.preventDefault();
 }
 
+
+
+
 async function saveHistory(searchRequest) {
+  //Pull history first
+  // History Queue is an aray of Strings with most recent searches
   let historyQueue = [];
+  
+  // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
     if(history != null) history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
   } 
   else {
+      // For loop populating array
     for(let i = 0; i < numHistorySearches; i++){
+      // Checks to make sure object pastSearches has the property we are looking for
       if(Object.hasOwn(data.pastSearches, "history" + (i).toString())){
         historyQueue[i] = data.pastSearches["history" + (i).toString()];
       } 
     }
   }
 
+  //Actually Save the History
   let counter = historyQueue.length;
   if(counter >= numHistorySearches){
+    // shift everything down
     for(let i = 0; i < numHistorySearches - 1; i++){
       historyQueue[i] = historyQueue[i+1];
     }
+    // Replace last element
     historyQueue[counter - 1] = searchRequest;
+      
   } else {
+    //Add another element to search history
     historyQueue[counter] = searchRequest;
   }
 
+  //Store search queue inside of past searches
   let pastSearches = {};
+  
   for(let i = 0; i < historyQueue.length; i++) {
     Object.defineProperty(pastSearches, "history" + (i).toString(), {
       value: historyQueue[i], writable: true, enumerable: true, configurable: true
     });
   }
+
+  //Tell chrome to store the data in past searches
   chrome.storage.sync.set({pastSearches});
 }
 
+// Function called to display history
 async function loadHistory() {
+  
+  // History Queue is an aray of Strings with most recent searches
   let historyQueue = [];
+  
+  // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
     history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
