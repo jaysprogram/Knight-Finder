@@ -175,7 +175,25 @@ async function loadHistory() {
     htmlStr += "</ol>";
     history.innerHTML = htmlStr;
     }
+  // Add event listeners to each button to reload the search
+  const historyButtons = history.querySelectorAll(".history-item");
+
+  historyButtons.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      const selectedSearch = historyQueue[index];
+      // Set search bar value and submit the form
+      searchBoxElement.value = selectedSearch;
+
+      // Simulate going back to main page
+      document.querySelectorAll(".page").forEach(p => p.classList.remove('active'));
+      document.getElementById("mainPage").classList.add("active");
+
+      // Manually trigger the search submit
+      processSearchBox(new Event("submit"));
+    });
+  });
 }
+
 async function loadTopSearches() {
   console.log("test");
   // connect to the database
@@ -201,13 +219,32 @@ async function loadTopSearches() {
  // travers through every item in the database
     data.searches.forEach(search => {
       const item = document.createElement("li");
-      item.textContent = search;
+      item.innerHTML = `<button class="history-item">${search}</button>`;
+      //item.textContent = search;
       listContainer.appendChild(item);
     });
     }
   } catch (err) {
     console.error("Failed to fetch top searches", err);
   }
+  // Add event listeners to each button to reload the search
+const topSearchButtons = document.querySelectorAll("#topSearchesList .history-item");
+
+topSearchButtons.forEach((button, index) => {
+  button.addEventListener("click", () => {
+    const selectedSearch = button.textContent;
+
+    // Set search bar value
+    searchBoxElement.value = selectedSearch;
+
+    // Switch back to main page
+    document.querySelectorAll(".page").forEach(p => p.classList.remove('active'));
+    document.getElementById("mainPage").classList.add("active");
+
+    // Manually trigger the search submit
+    processSearchBox(new Event("submit"));
+  });
+});
 }
 
 
