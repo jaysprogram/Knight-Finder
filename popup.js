@@ -1,5 +1,3 @@
-// popup.js
-
 // Creating a variable to take in the input of the user from the searchBox
 let searchBoxForm = document.getElementById("searchBox");
 
@@ -12,9 +10,12 @@ searchBoxForm.addEventListener("submit",processSearchBox);
 // Starting Backend for History
 var numHistorySearches = 10;
 
+
+
 //Call the asynchronous function to set the history
 let history = document.getElementById("history");
 loadHistory();
+
 
 // pages buttons, this is where we make it seem a new page appears
 document.addEventListener('DOMContentLoaded', () => { // will only run if everything is loaded
@@ -63,78 +64,153 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   });
 });
 
+
 // Function to stop the page from refreshing after every button pressed
 function preventRefresh(e){
+  // Checks to see if the method exists on the browser being used
+  // e.preventDefault stops the page from refreshing after input
   if (e.preventDefault) e.preventDefault();
 }
 
+
+
+
 async function saveHistory(searchRequest) {
+  //Pull history first
+  // History Queue is an aray of Strings with most recent searches
   let historyQueue = [];
+  
+  // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
     history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
   } 
   else {
+      // For loop populating array
     for(let i = 0; i < numHistorySearches; i++){
+      // Checks to make sure object pastSearches has the property we are looking for
       if(Object.hasOwn(data.pastSearches, "history" + (i).toString())){
         historyQueue[i] = data.pastSearches["history" + (i).toString()];
       } 
     }
   }
 
+  //Actually Save the History
   let counter = historyQueue.length;
   if(counter >= numHistorySearches){
+    // shift everything down
     for(let i = 0; i < numHistorySearches - 1; i++){
       historyQueue[i] = historyQueue[i+1];
     }
+    // Replace last element
     historyQueue[counter - 1] = searchRequest;
+      
   } else {
+    //Add another element to search history
     historyQueue[counter] = searchRequest;
   }
 
+  //Store search queue inside of past searches
   let pastSearches = {};
+  
   for(let i = 0; i < historyQueue.length; i++) {
     Object.defineProperty(pastSearches, "history" + (i).toString(), {
       value: historyQueue[i], writable: true, enumerable: true, configurable: true
     });
   }
+
+  //Tell chrome to store the data in past searches
   chrome.storage.sync.set({pastSearches});
 }
 
+// Function called to display history
 async function loadHistory() {
+  
+  // History Queue is an aray of Strings with most recent searches
   let historyQueue = [];
+  
+  // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
   if(data == undefined || data.pastSearches == undefined){
     history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
     return;
   }
 
+  // For loop populating array
+  // We'll build up a list as a string
   let htmlStr = "<ol>";
+
   for (let i = 0; i < numHistorySearches; i++) {
     const key = `history${i}`;
+  
     if (Object.hasOwn(data.pastSearches, key)) {
       let searchText = data.pastSearches[key];
+      // Truncate to 12 characters, then add "..."
       const truncatedText = (searchText.length > 28)
         ? searchText.slice(0, 28) + "..."
         : searchText;
+  
       historyQueue[i] = searchText;
+  
       htmlStr += `<li> <button class="history-item">${truncatedText}</button> </li>`;
     }
   }
+  
   htmlStr += "</ol>";
   history.innerHTML = htmlStr;
+
+  // Add event listeners to each button to reload the search
+  const historyButtons = history.querySelectorAll(".history-item");
+
+  historyButtons.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      const selectedSearch = historyQueue[index];
+      // Set search bar value and submit the form
+      searchBoxElement.value = selectedSearch;
+  
+      // Simulate going back to main page
+      document.querySelectorAll(".page").forEach(p => p.classList.remove('active'));
+      document.getElementById("mainPage").classList.add("active");
+  
+      // Manually trigger the search submit
+      processSearchBox(new Event("submit"));
+    });
+  });
+  
 }
+ /*
+  // Fetch data from Chrome
+  const data = await chrome.storage.sync.get("pastSearches");
+  if(data != undefined && data.pastSearches != undefined && "history1" in data.pastSearches) {
+    const pastSearches = {};
+    Object.assign(pastSearches, data.pastSearches);
+    history.innerHTML = pastSearches["history1"];
+  } else {
+    history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
+  }
+}
+*/
 
 function processSearchBox(e){
+
+  // call preventRefresh
   preventRefresh(e);
+  // Saving a duplicate the user enters and reset original to empty
   let searchRequest = searchBoxElement.value;
   searchBoxElement.value = "";
+
+
+
+  // process search request
   const responseElement = document.getElementById("responseText");
+
   if (!searchRequest) {
       responseElement.innerText = "Please enter a question.";
       return;
   }
+
   responseElement.innerText = "Loading...";
+
   chrome.runtime.sendMessage({ action: "fetchGemini", prompt: searchRequest }, (response) => {
       if (response?.result) {
           responseElement.innerText = response.result;
@@ -142,69 +218,9 @@ function processSearchBox(e){
           responseElement.innerText = "Error fetching response.";
       }
   });
+  
+
+  //Save the history
   saveHistory(searchRequest);
+  
 }
-
-// AI Assistant logic for prompt engineering
-document.getElementById('aiAskBtn')?.addEventListener('click', async () => {
-  const userInput = document.getElementById('aiUserInput').value;
-  const responseEl = document.getElementById('aiResponse');
- 
-  // I did use chatgpt to come up with catchy phrases (I am not this witty unfortunately)
-  const knightPhrases = [
-    "Consulting the scrolls...",
-    "Sharpening my thoughts...",
-    "Summoning wisdom from the Round Table...",
-    "Unsheathing the answer...",
-    "Preparing your quest map...",
-    "In council with the sages...",
-    "Drawing from the tomes of knowledge...",
-    "Hark! A solution is forming...",
-    "Engaging in noble contemplation...",
-    "Gathering guidance from the royal archives..."
-  ];
-  
-  const randomPhrase = knightPhrases[Math.floor(Math.random() * knightPhrases.length)];
-  responseEl.textContent = randomPhrase;
-  
-
-  const systemPrompt = `
-  You are a helpful digital tour guide for UCF's student portal 
-  interface. When the user asks where to find something on the system. 
-  Once the user states what they want to find, make a midevial knight joke/ metaphor and follow the instructions below
-  Respond with step-by-step directions in this format:
-  "
-  To access [feature name]:
-  Step One: [verb] to [menu/tab]
-  Step Two: [verb] to [submenu or link]
-  Continue for however many steps it takes to get to specific user input
-  Step (final): Pathway to (user input) successfuly traversed (in bullet points under this explain what is on this page in 1-2 sentences to help the user understand what theyre looking at)
-  "
-
-  Use verbs like 'navigate,' 'click,' 'select,' or 'go to' interchangeably as well as once in awhile using synonyms to these words that are more knight like. 
-  Be warm, clear, concise,  and easy to understand.`;
-
-  try {
-    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyBYZa6iVFRLCafUQXi0LkOZseUybNC6Rxg", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        prompt: userInput,
-        system: systemPrompt
-      })
-      
-      
-      
-    });
-
-    const data = await response.json();
-    const aiText = data.candidates[0].content.parts[0].text.trim();
-    responseEl.textContent = aiText;
-
-  } catch (err) {
-    console.error(err);
-    responseEl.textContent = "Something went wrong!";
-  }
-});
