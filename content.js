@@ -45,7 +45,8 @@ function recurringHighlight() {
     //console.log(arrayOfStepStrings[i]);
     const keyword = arrayOfStepStrings[i];
     //Highlight the target text
-    var xpath = "//a[contains(text(), '>" + keyword + "<')]";
+    //Why won't this change???
+    var xpath = "//a[contains(text(), '" + keyword + "')]";
     var matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
     //console.log(document);
   
