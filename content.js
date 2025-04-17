@@ -56,7 +56,7 @@ function recurringHighlight() {
     }
   }
 }
-  
+
 
 //Set Up the content array, then set the highlighting to be called on an interval
 //Set up the array by loading in session content
