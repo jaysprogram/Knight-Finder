@@ -17,6 +17,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 
+let contentSave = "";
+contentSave = sessionStorage.getItem("contentSave") ? sessionStorage.getItem("contentSave") : "";
+
+//Send content memory
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === "RequestSave") {
+   sendResponse({status: "success", message: contentSave});
+  }
+});
+
+//Save content memory
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+if (request.action === "SetSave") {
+  contentSave = request.message;
+  sessionStorage.setItem("contentSave", request.message);
+  sendResponse({status: "success"});
+}
+});
 
 function highlightText(keyword) {
   //Highlight the target text

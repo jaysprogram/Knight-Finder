@@ -3,6 +3,18 @@
 //Define the responseElement:
 const responseElement = document.getElementById("responseText");
 
+//Remember the current session
+chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+  chrome.tabs.sendMessage(tabs[0].id, {action: "RequestSave"}, (response) => {
+    responseElement.innerText = response.message;
+    if(responseElement.innerText == "") {
+      responseElement.innerText = "Sir Guidewell awaits your instructions brave knight!";
+    }
+    console.log(response.message);
+  });
+});
+  
+
 // Creating a variable to take in the input of the user from the searchBox
 let searchBoxForm = document.getElementById("searchBox");
 
@@ -190,6 +202,15 @@ function processSearchBox(e) {
       // 3. On success, response.result is Gemini's latest answer
       if (response?.result) {
         responseElement.innerText = response.result;
+
+        //Save this result
+        chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+          chrome.tabs.sendMessage(tabs[0].id, {action: "SetSave", message: response.result}, (response) => {
+            if (response.status === "success") {
+              console.log("Variable modified successfully");
+            }
+          });
+        });
         
           
         // 4. Store assistant’s answer back into convohistory
@@ -209,6 +230,7 @@ function processSearchBox(e) {
                   }
               });
           });
+
 
           /*
           for(let i = 0; i < arrayOfStepStrings.length; i++) {
