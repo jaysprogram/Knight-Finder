@@ -107,7 +107,7 @@ def save_search_term():
 def get_search_terms():
 
     #get last 10 items
-    cursor.execute("SELECT search_term FROM searches ORDER BY id DESC LIMIT 10")
+    cursor.execute("SELECT search_term FROM searches ORDER BY count DESC LIMIT 10")
     
     # take the result and fetch it all
     results = cursor.fetchall()
