@@ -32,41 +32,6 @@ cursor = db.cursor() # create a cursor to talk to the database
 
 
 # set up flask route 
-"""
-@app.route('/searches', methods=['POST'])
-def save_search_term():
-    try:
-        data = request.get_json()
-        search_term = data.get('search_term')
-
-        if not search_term:
-            return jsonify({ "❌ error": "No search_term provided" }), 400
-        #idk if this is needed rn
-        #query = "INSERT INTO searches (search_term) VALUES (%s)"
-        #cursor.execute(query, (search_term,))
-        
-        # make the keyword lower case
-        keyword = search_term.strip().lower()
-
-        #check if the keyword exists
-        cursor.execute("SELECT count FROM searches WHERE search_term = %s", (keyword, 1))
-        existing = cursor.fetchone()
-        
-        if existing:
-            # Update the count
-            cursor.execute("UPDATE searches SET count = count + 1 WHERE search_term = %s", (keyword,))
-        else:
-            # Insert new search term with count = 1
-            cursor.execute("INSERT INTO searches (search_term, count) VALUES (%s, 1)", (keyword,))
-
-        db.commit()
-
-        return jsonify({ "success": True, "insertedId": cursor.lastrowid }), 200
-
-    except Exception as e:
-        print("❌ Error saving search term:", e)
-        return jsonify({ "error": "Database error", "details": str(e) }), 500
-"""
 @app.route('/searches', methods=['POST'])
 def save_search_term():
     try:
@@ -107,7 +72,7 @@ def save_search_term():
 def get_search_terms():
 
     #get last 10 items
-    cursor.execute("SELECT search_term FROM searches ORDER BY count DESC LIMIT 10")
+    cursor.execute("SELECT search_term FROM searches ORDER BY count DESC LIMIT 7")
     
     # take the result and fetch it all
     results = cursor.fetchall()
@@ -279,7 +244,6 @@ Webcourses@UCF
 UCF Home Page
 UCF COM Home Page
 My Preferences
-
 """
 
 
