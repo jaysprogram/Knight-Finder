@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   // Event listeners 
   // history
   document.getElementById('historyBtn').addEventListener("click", () => {
+    loadHistory();
     showPage(historyPage);
   });
 
@@ -163,9 +164,11 @@ async function loadHistory() {
   
   // Fetch data from chrome
   const data = await chrome.storage.sync.get("pastSearches");
+  historyList = document.getElementById("historyList");
   if(data == undefined || data.pastSearches == undefined){
     history.innerHTML = "It looks like you don't have any history yet. Try searching to see your past searches here!";
   } else {
+    
     // For loop populating array
     // We'll build up a list as a string
     let htmlStr = "<ol>";
@@ -187,10 +190,10 @@ async function loadHistory() {
     }
     
     htmlStr += "</ol>";
-    history.innerHTML = htmlStr;
+    historyList.innerHTML = htmlStr;
     }
   // Add event listeners to each button to reload the search
-  const historyButtons = history.querySelectorAll(".history-item");
+  const historyButtons = historyList.querySelectorAll(".history-item");
 
   historyButtons.forEach((button, index) => {
     button.addEventListener("click", () => {
@@ -212,17 +215,13 @@ async function loadHistory() {
 async function loadBookmarks() {
   const data = await chrome.storage.sync.get("bookmarkedSearches");
   let bookmarksPage = document.getElementById("bookmarksPage");
+  let bookmarksList = document.getElementById("bookmarkList");
 
   if (!data.bookmarkedSearches || data.bookmarkedSearches.length === 0) {
-    bookmarksPage.innerHTML = "<p>No bookmarks yet. Press the bookmark button after a search!</p>";
+    bookmarksList.innerHTML = "<p>No bookmarks yet. Press the bookmark button after a search!</p>";
     return;
   } else {
-    bookmarksPage.innerHTML = `<h2 id="HeaderDesign">
-        Bookmarks
-        <span style="display: block; width: 100%; height: 1px; background-color: rgb(92, 92, 92); margin-top: 5px"></span>
-      </h2>
-      <p></p>
-      <button class="backBtn btn btn-secondary btn-sm">Back</button>`;
+    bookmarksList.innerHTML = ``;
   }
 
   let htmlStr = "<ol>";
@@ -241,7 +240,7 @@ async function loadBookmarks() {
   }
   htmlStr += "</ol>";
 
-  bookmarksPage.innerHTML += htmlStr;
+  bookmarksList.innerHTML += htmlStr;
 
   // Event delegation for click to trigger search
   bookmarksPage.querySelectorAll(".bookmark-btn").forEach(btn => {
