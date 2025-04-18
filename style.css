@@ -264,6 +264,14 @@ body {
     filter: brightness(0.5) invert(0.5);
 }
 
+.deleteBookmark-icon {
+    width: 20px;
+    height: 20px;
+     /* match dark theme look /
+    pointer-events: none; / so click triggers the button, not just the image */
+
+  }
+
 
 /* Only apply transition effect to non-main pages */
 .page.active {
@@ -302,4 +310,27 @@ body {
 /* This is the effect when clicking on a button*/
 .history-item:active{
     transform: rotate(0deg) scale(.4);  
+}
+
+/*Delete Bookmark button CSS */
+.delete-bookmark-btn{
+    background-color: #333;
+    border: none;
+    border-radius: 15px;      /* Slightly rounded corners */
+    color: #afadad;            /* Button text color */
+    font-size: 14px;        /* Font size */
+    text-transform: none;   /* Control text transformation (e.g., uppercase, lowercase, etc.) */
+    transition: transform 0.3s ease; /* Smooth hover transition */
+}
+.delete-bookmark-btn:hover{
+    transform: rotate(1deg) scale(1);
+}
+
+/* This is the effect when clicking on a button*/
+.delete-bookmark-btn:active{
+    transform: rotate(0deg) scale(.4);  
+}
+
+#deleteBookmarkBtn img{
+    filter: brightness(0.5) invert(0.5);
 }

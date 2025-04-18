@@ -33,7 +33,6 @@ var numHistorySearches = 10;
 let history = document.getElementById("history");
 loadHistory();
 
-
 // pages buttons, this is where we make it seem a new page appears
 document.addEventListener('DOMContentLoaded', () => { // will only run if everything is loaded
   const pages = document.querySelectorAll(".page"); // selects everything
@@ -68,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => { // will only run if everyt
   });
 
   document.getElementById('bookmarkBtn').addEventListener("click", () => {
+    loadBookmarks();
     showPage(bookmarks);
   });
   
@@ -141,6 +141,20 @@ async function saveHistory(searchRequest) {
   chrome.storage.sync.set({pastSearches});
 }
 
+//Function to save Bookmarks
+async function saveBookmark(searchRequest) {
+
+  //fetch Data from Chrome
+  const data = await chrome.storage.sync.get("bookmarkedSearches");
+  let bookmarkQueue = data.bookmarkedSearches || [];
+
+  // Prevent duplicates
+  if (!bookmarkQueue.includes(searchRequest)) {
+    bookmarkQueue.push(searchRequest);
+    await chrome.storage.sync.set({ bookmarkedSearches: bookmarkQueue });
+  }
+}
+
 // Function called to display history
 async function loadHistory() {
   
@@ -193,6 +207,90 @@ async function loadHistory() {
     });
   });
 }
+
+//Function called to display bookmarks
+async function loadBookmarks() {
+  const data = await chrome.storage.sync.get("bookmarkedSearches");
+  let bookmarksPage = document.getElementById("bookmarksPage");
+
+  if (!data.bookmarkedSearches || data.bookmarkedSearches.length === 0) {
+    bookmarksPage.innerHTML = "<p>No bookmarks yet. Press the bookmark button after a search!</p>";
+    return;
+  } else {
+    bookmarksPage.innerHTML = `<h2 id="HeaderDesign">
+        Bookmarks
+        <span style="display: block; width: 100%; height: 1px; background-color: rgb(92, 92, 92); margin-top: 5px"></span>
+      </h2>
+      <p></p>
+      <button class="backBtn btn btn-secondary btn-sm">Back</button>`;
+  }
+
+  let htmlStr = "<ol>";
+  for (let i = 0; i < data.bookmarkedSearches.length; i++) {
+    const text = data.bookmarkedSearches[i];
+    const truncated = (text.length > 28) ? text.slice(0, 28) + "..." : text;
+
+    //Generated button appearance
+    htmlStr += `
+  <li>
+    <button class="history-item bookmark-btn" data-text="${text}">${truncated}</button>
+    <button id="deleteBookmarkBtn" class="delete-bookmark-btn" data-index="${i}" style="margin-absolute: 8px; ">
+      <img src="Images/cross-circle.png" alt="Delete" class="deleteBookmark-icon" />
+    </button>
+  </li>`;
+  }
+  htmlStr += "</ol>";
+
+  bookmarksPage.innerHTML += htmlStr;
+
+  // Event delegation for click to trigger search
+  bookmarksPage.querySelectorAll(".bookmark-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const searchTerm = e.target.getAttribute("data-text");
+
+      //Set the search box value
+      searchBoxElement.value = searchTerm;
+
+      //Go back to main page
+      document.querySelectorAll(".page").forEach(p => p.classList.remove('active'));
+      document.getElementById("mainPage").classList.add("active");
+
+      //Slight delay before submitting (to let transition finish)
+      setTimeout(() => {
+        searchBoxForm.dispatchEvent(new Event('submit'));
+      }, 200); // 200ms delay
+    });
+  });
+
+// Delete button logic
+  bookmarksPage.querySelectorAll(".delete-bookmark-btn").forEach(btn => {
+    btn.addEventListener("click", async (e) => {
+      const clickedButton = e.currentTarget;
+      const index = parseInt(clickedButton.getAttribute("data-index"));
+
+      // Remove the corresponding <li> visually from DOM
+      const li = clickedButton.closest("li");
+      li?.remove(); //This deletes the item from the visible page instantly
+
+      // Update storage in the background
+      const data = await chrome.storage.sync.get("bookmarkedSearches");
+      let bookmarks = data.bookmarkedSearches || [];
+
+      if (index >= 0 && index < bookmarks.length) {
+        bookmarks.splice(index, 1); // remove from array
+        await chrome.storage.sync.set({ bookmarkedSearches: bookmarks });
+      }
+
+      // Update data-index attributes for all remaining delete buttons
+      const remainingButtons = bookmarksPage.querySelectorAll(".delete-bookmark-btn");
+      remainingButtons.forEach((btn, newIndex) => {
+        btn.setAttribute("data-index", newIndex);
+      });
+    });
+  });
+}
+
+
 
 async function loadTopSearches() {
   console.log("test");
@@ -258,13 +356,16 @@ let convohistory = [];
 /**
  * Called when user submits the search prompt.
  */
+
+let searchRequest = "";
+
 function processSearchBox(e) {
 
   // prevent form refresh
   if (e.preventDefault) e.preventDefault();
   
   // Grab user text
-  const searchRequest = document.getElementById("searchBar").value.trim();
+  searchRequest = document.getElementById("searchBar").value.trim();
   document.getElementById("searchBar").value = "";
   
   if (!searchRequest) {
@@ -373,3 +474,11 @@ fetch("http://localhost:3000/searches", { // start request to backend
   // Optionally store user text in local search history too
   saveHistory(searchRequest);
 }
+
+//Functionality of the bookmark button
+document.getElementById("bookmarkThis").addEventListener("click", () => {
+
+  if (searchRequest) {
+    saveBookmark(searchRequest);
+  }
+});

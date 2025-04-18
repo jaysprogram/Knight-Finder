@@ -31,6 +31,13 @@
         <form id="searchBox">
           <input type="text" placeholder="Search..." name="searchBar" id="searchBar">
           
+          <!-- Bookmark Action Button -->
+        <div id="bookmarkAction">
+          <button class="button" type="button" id="bookmarkThis">
+              <img src="images/wishlist-star.png" alt="Bookmark"  style="height: 26px; width: 26px; filter: brightness(0.5) invert(0.5);">
+          </button>
+        </div>
+
           <!-- Search Button -->
           <div id="searchButton">
               <button class="button" type="submit">
@@ -108,7 +115,7 @@
       <!-- start here -->
   </div>
 
-    <!-- History Page (Initially Hidden) -->
+    <!-- Bookmark Page (Initially Hidden) -->
     <div id="bookmarksPage" class="page">
       <h2 id="HeaderDesign">
         Bookmarks
@@ -116,10 +123,12 @@
       </h2>
       <p></p>
       <button class="backBtn btn btn-secondary btn-sm">Back</button>
-      <div id="highlight">
+      
+      <!--<div id="highlight">
         <input type="text" id="keyword" placeholder="Enter keyword" />
         <button id="highlightBtn">Highlight</button>
-        </div>  
+        </div>  -->
+
   </div>
 
     <script src="popup.js"></script>
